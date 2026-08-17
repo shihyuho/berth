@@ -31,6 +31,7 @@
 如果先前曾手動把 `Berth.app` 放進「應用程式」，請先結束並移除舊 App，避免與 Homebrew 管理的版本衝突。
 
 ```sh
+brew tap shihyuho/tap
 brew install --cask shihyuho/tap/berth
 ```
 
