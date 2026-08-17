@@ -19,14 +19,14 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>0.0.0</string><!-- x-release-please-version -->
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>0.0.0</string><!-- x-release-please-version -->
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
-	<string>功能依公開產品描述重新實作,僅供個人使用。</string>
+	<string>Copyright © 2026 Shihyu</string>
 </dict>
 </plist>

@@ -1,0 +1,52 @@
+name: Commitlint
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v6
+
+  pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Lint PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: >
+          echo "$PR_TITLE" |
+          npx --yes -p @commitlint/cli -p @commitlint/config-conventional
+          commitlint --extends @commitlint/config-conventional
+
+  parse-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Parse each commit the way release-please will
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          npm install --no-save --no-audit --no-fund --silent \
+            --prefix "$RUNNER_TEMP" @conventional-commits/parser
+          git log --format='%H%x1e%B%x1f' \
+            "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}" |
+            NODE_PATH="$RUNNER_TEMP/node_modules" node .github/scripts/parse-integrity.cjs

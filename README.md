@@ -12,7 +12,7 @@
 
 不修改 Dock 偏好設定，不妨礙游標穿越螢幕，也不需要你反覆把 Dock 推回原位。
 
-> Berth 目前以原始碼提供，需在 Apple Silicon Mac 上自行建置。
+> Berth 目前提供 Apple Silicon 版本，可透過 Homebrew 安裝或從原始碼建置。
 
 ## 為什麼用 Berth？
 
@@ -24,19 +24,19 @@
 
 ## 快速開始
 
-### 1. 建置 App
+### 1. 使用 Homebrew 安裝
 
 先確認「系統設定」→「桌面與 Dock」→「Mission Control」中的「顯示器有獨立的空間」已開啟，再執行：
 
+如果先前曾手動把 `Berth.app` 放進「應用程式」，請先結束並移除舊 App，避免與 Homebrew 管理的版本衝突。
+
 ```sh
-git clone https://github.com/shihyuho/berth.git
-cd berth
-./Scripts/build.sh
+brew install --cask shihyuho/tap/berth
 ```
 
-建置完成後會產生 `dist/Berth.app`。把它拖到「應用程式」資料夾，並從那裡開啟。
+Berth 使用 ad-hoc 簽章。第一次開啟時，macOS 可能顯示無法驗證開發者；請前往「系統設定」→「隱私權與安全性」，找到 Berth 的阻擋訊息並選擇「仍要打開」，再依提示確認。
 
-> Berth 使用 ad-hoc 簽名。本機建置的 App 不帶 quarantine 屬性，可直接開啟。
+Homebrew 會把 `Berth.app` 安裝至「應用程式」資料夾。
 
 ### 2. 選擇 Dock 的泊位
 
@@ -46,6 +46,17 @@ cd berth
 4. 回到選單列；Berth 會開始固定 Dock，並在需要時把它帶回來。
 
 想讓設定重開機後自動生效，可在 ⚓ 選單中開啟「登入時自動啟動」。
+
+## 更新
+
+先更新 Homebrew 的套件資訊，再升級 Berth：
+
+```sh
+brew update
+brew upgrade --cask shihyuho/tap/berth
+```
+
+由於 Berth 使用 ad-hoc 簽章，每次更新後可能需要重新開啟 App，並前往「系統設定」→「隱私權與安全性」→「輔助使用」，將 Berth 關閉後再重新啟用。
 
 ## 輔助使用權限用在哪裡？
 
@@ -75,20 +86,31 @@ Berth 會即時攔住其他螢幕上的召喚手勢；若 Dock 仍因其他原�
 
 問題仍未解決時，請到 [GitHub Issues](https://github.com/shihyuho/berth/issues) 回報你的 macOS 版本、螢幕排列方式與 Dock 停靠位置。
 
-### 重新建置後，原本的授權失效
+### 重新建置或更新後，原本的授權失效
 
-ad-hoc 簽名會在重新建置後改變。請前往「系統設定」→「隱私權與安全性」→「輔助使用」，將 Berth 關閉後再重新開啟。
+ad-hoc 簽章會在重新建置或 Homebrew 更新後改變。請前往「系統設定」→「隱私權與安全性」→「輔助使用」，將 Berth 關閉後再重新開啟。
 
 ### 拔掉固定的螢幕後會怎樣？
 
 Berth 會安全地停止攔截。接回螢幕，或從 ⚓ 選單選擇新的泊位即可。
+
+## 從原始碼建置
+
+需要 Swift 5.9 與 Xcode Command Line Tools：
+
+```sh
+git clone https://github.com/shihyuho/berth.git
+cd berth
+./Scripts/build.sh
+```
+
+建置完成後會產生 `dist/Berth.app`。把它拖到「應用程式」資料夾，並從那裡開啟。本機建置的 App 不帶 quarantine 屬性，但重新建置後仍需重新啟用輔助使用權限。
 
 ## 系統需求
 
 - macOS 13 Ventura 或更新版本
 - Apple Silicon Mac
 - 已開啟「顯示器有獨立的空間」
-- 從原始碼建置需有 Swift 5.9 與 Xcode Command Line Tools
 
 ## License
 
