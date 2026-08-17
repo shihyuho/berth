@@ -1,0 +1,153 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+      sha: ${{ steps.rp.outputs.sha }}
+    steps:
+      - uses: actions/create-github-app-token@v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      - uses: googleapis/release-please-action@v5.0.0
+        id: rp
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  parse-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Parse the commit release-please just read
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          npm install --no-save --no-audit --no-fund --silent \
+            --prefix "$RUNNER_TEMP" @conventional-commits/parser
+          git log -1 --format='%H%x1e%B%x1f' |
+            NODE_PATH="$RUNNER_TEMP/node_modules" node .github/scripts/parse-integrity.cjs
+
+  publish-artifact:
+    runs-on: macos-15
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    outputs:
+      sha256: ${{ steps.asset.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.sha }}
+      - name: Build arm64 release asset
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: ./Scripts/package_release.sh "$TAG"
+      - name: Record asset checksum
+        id: asset
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          asset="dist/Berth-${TAG}-arm64.zip"
+          echo "sha256=$(shasum -a 256 "$asset" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+      - uses: actions/create-github-app-token@v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+      - name: Upload asset to GitHub Release
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: gh release upload "$TAG" "dist/Berth-${TAG}-arm64.zip" --clobber
+
+  update-homebrew-tap:
+    runs-on: ubuntu-latest
+    needs: [release-please, publish-artifact]
+    if: needs.release-please.outputs.release_created == 'true'
+    steps:
+      - uses: actions/create-github-app-token@v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: homebrew-tap
+          permission-contents: write
+          permission-pull-requests: write
+      - name: Check out Berth release commit
+        uses: actions/checkout@v4
+        with:
+          path: berth
+          ref: ${{ needs.release-please.outputs.sha }}
+          persist-credentials: false
+      - name: Check out Homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: shihyuho/homebrew-tap
+          path: homebrew-tap
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Update Cask and open pull request
+        env:
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SHA256: ${{ needs.publish-artifact.outputs.sha256 }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          branch="release/berth-${TAG}"
+          cd homebrew-tap
+
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+            git fetch origin "$branch"
+            git switch --track -c "$branch" "origin/$branch"
+          else
+            git switch -c "$branch"
+          fi
+
+          ../berth/Scripts/render_cask.sh "$TAG" "$SHA256" Casks/berth.rb
+
+          bot_id="$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)"
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+          if [[ -n "$(git status --porcelain -- Casks/berth.rb)" ]]; then
+            git add Casks/berth.rb
+            git commit -m "chore(berth): update to ${TAG}"
+            git push --set-upstream origin "$branch"
+          fi
+
+          pr_url="$(gh pr list --repo shihyuho/homebrew-tap --head "$branch" --state open --json url --jq ".[0].url // empty")"
+          if [[ -z "$pr_url" ]] && [[ -n "$(git log origin/main..HEAD --oneline)" ]]; then
+            body="$(printf "Updates Berth to [%s](https://github.com/shihyuho/berth/releases/tag/%s).\n\nSHA-256: \`%s\`\n" "$TAG" "$TAG" "$SHA256")"
+            gh pr create \
+              --repo shihyuho/homebrew-tap \
+              --base main \
+              --head "$branch" \
+              --title "chore(berth): update to ${TAG}" \
+              --body "$body"
+          fi
