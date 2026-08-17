@@ -1,0 +1,30 @@
+name: Test Baseline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-baseline-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-baseline:
+    name: Test baseline
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Report Swift toolchain
+        run: swift --version
+      - name: Build debug executable
+        run: swift build
+      - name: Run tests with coverage
+        run: swift test --enable-code-coverage
+      - name: Enforce BerthCore coverage
+        run: ./Scripts/check_coverage.sh 90
+      - name: Build arm64 app
+        run: ./Scripts/build.sh

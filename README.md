@@ -60,6 +60,7 @@ Berth requires macOS 13 or later on Apple Silicon.
 | [How Berth works](docs/how-it-works.md) | Dock behavior, display changes, and privacy boundaries |
 | [Troubleshooting](docs/troubleshooting.md) | Common setup and permission problems |
 | [Development](docs/development.md) | Building from source, versions, and release packaging |
+| [Testing](docs/testing.md) | Automated validation, coverage policy, and release smoke test |
 
 ## License
 

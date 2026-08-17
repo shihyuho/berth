@@ -60,6 +60,7 @@ Berth 需要 Apple Silicon 與 macOS 13 以上版本。
 | [運作原理](docs/zh-TW/how-it-works.md) | Dock 行為、螢幕變更與隱私邊界 |
 | [疑難排解](docs/zh-TW/troubleshooting.md) | 常見設定與權限問題 |
 | [開發](docs/zh-TW/development.md) | 從原始碼建置、版本與發布封裝 |
+| [測試](docs/zh-TW/testing.md) | 自動驗證、coverage 政策與發布前 smoke test |
 
 ## License
 

@@ -1,4 +1,5 @@
 import AppKit
+import BerthCore
 import CoreGraphics
 
 private let tapCallback: CGEventTapCallBack = { _, type, event, refcon in
@@ -16,16 +17,17 @@ final class DockGuard {
 
     var pinnedDisplayID: CGDirectDisplayID?
     var orientation: DockOrientation = .bottom
-    private var displayBounds: [(id: CGDirectDisplayID, bounds: CGRect)] = []
-
-    /// 游標離 Dock 邊緣的最小距離(px)。到不了邊緣,Dock 就不會被召喚過去。
-    private static let margin: CGFloat = 2
+    private var displayBounds: [DisplayBounds] = []
 
     func refreshDisplays() {
-        // 排除鏡像螢幕:它與被鏡像者共享相同 bounds,留著會把游標誤判到鏡像那顆
         displayBounds = DisplayInfo.activeDisplayIDs()
-            .filter { CGDisplayMirrorsDisplay($0) == 0 }
-            .map { ($0, CGDisplayBounds($0)) }
+            .map {
+                DisplayBounds(
+                    id: $0,
+                    bounds: CGDisplayBounds($0),
+                    isMirrored: CGDisplayMirrorsDisplay($0) != 0
+                )
+            }
     }
 
     @discardableResult
@@ -79,43 +81,15 @@ final class DockGuard {
             return Unmanaged.passUnretained(event)
         }
 
-        guard let pinned = pinnedDisplayID else { return Unmanaged.passUnretained(event) }
-        var location = event.location
-        // 多顆螢幕 bounds 可能重疊(鏡像):只要固定螢幕包含游標就放行
-        let containing = displayBounds.filter { $0.bounds.contains(location) }
-        guard let display = containing.first,
-              !containing.contains(where: { $0.id == pinned }) else {
-            return Unmanaged.passUnretained(event)
-        }
-
-        let bounds = display.bounds
-        let margin = Self.margin
-        switch orientation {
-        case .bottom:
-            if location.y > bounds.maxY - margin,
-               !hasDisplay(at: CGPoint(x: location.x, y: bounds.maxY + margin)) {
-                location.y = bounds.maxY - margin
-                event.location = location
-            }
-        case .left:
-            if location.x < bounds.minX + margin,
-               !hasDisplay(at: CGPoint(x: bounds.minX - margin, y: location.y)) {
-                location.x = bounds.minX + margin
-                event.location = location
-            }
-        case .right:
-            if location.x > bounds.maxX - margin,
-               !hasDisplay(at: CGPoint(x: bounds.maxX + margin, y: location.y)) {
-                location.x = bounds.maxX - margin
-                event.location = location
-            }
+        let restricted = DockGeometry.restrictedLocation(
+            event.location,
+            pinnedDisplayID: pinnedDisplayID,
+            orientation: orientation,
+            displays: displayBounds
+        )
+        if restricted != event.location {
+            event.location = restricted
         }
         return Unmanaged.passUnretained(event)
-    }
-
-    /// 該點是否落在其他螢幕上 — 是的話代表這條邊是螢幕間的交界,
-    /// 擋住會害游標過不去,而且 Dock 也不會出現在這種邊上。
-    private func hasDisplay(at point: CGPoint) -> Bool {
-        displayBounds.contains { $0.bounds.contains(point) }
     }
 }

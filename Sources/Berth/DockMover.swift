@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import BerthCore
 
 enum DockMover {
     /// 透過 Accessibility 找出 Dock 目前在哪顆螢幕(需要輔助使用權限)。

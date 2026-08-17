@@ -12,6 +12,10 @@ Use the default triage label vocabulary. See `docs/agents/triage-labels.md`.
 
 Use the single-context domain documentation layout. See `docs/agents/domain.md`.
 
+## Testing
+
+For Swift source changes, follow the automated baseline and coverage policy in `docs/testing.md`.
+
 ## Commit hygiene
 
 CI runs commitlint (`@commitlint/config-conventional`) and blocks merge on violations. Run this right after every `git commit` to catch issues before push:

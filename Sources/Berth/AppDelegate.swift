@@ -1,4 +1,5 @@
 import AppKit
+import BerthCore
 import ServiceManagement
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
@@ -56,7 +57,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let trusted = AXIsProcessTrusted()
         let display = pinnedUUID.flatMap { DisplayInfo.resolve(uuid: $0) }
 
-        guard trusted, let display else {
+        guard GuardReconciliation.eligibility(
+            isTrusted: trusted,
+            hasPinnedDisplay: display != nil
+        ) == .start, let display else {
             // 權限被撤銷 → 自動停止攔截;螢幕不在 → 停止並等使用者重新選擇
             stopGuarding()
             return
@@ -66,14 +70,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         dockGuard.pinnedDisplayID = display.id
         dockGuard.refreshDisplays()
         let wasRunning = dockGuard.isRunning
-        guard dockGuard.start() else {
+        let action = GuardReconciliation.afterStart(
+            wasRunning: wasRunning,
+            startSucceeded: dockGuard.start(),
+            summonRequested: summonIfWrong
+        )
+        guard case let .monitor(shouldSummon) = action else {
             stopGuarding()
             return
         }
         startDockWatchIfNeeded()
         // 剛從停止轉為啟動(例如使用者剛授權完)也要立刻召喚,
         // 不然要等 dockWatchTimer 首次觸發,看起來像沒生效
-        if summonIfWrong || !wasRunning {
+        if shouldSummon {
             summonIfOnWrongScreen()
         }
     }
