@@ -6,3 +6,4 @@ English · [繁體中文](zh-TW/README.md)
 - [How Berth works](how-it-works.md): Dock behavior, display handling, and privacy boundaries.
 - [Troubleshooting](troubleshooting.md): common setup and permission problems.
 - [Development](development.md): build Berth from source and understand its release files.
+- [Testing](testing.md): run the automated baseline and complete the release smoke test.

@@ -1,4 +1,5 @@
 import AppKit
+import BerthCore
 
 /// 一顆實體螢幕。用 UUID 做持久化識別(displayID 重開機或重接線後可能改變)。
 struct DisplayInfo: Equatable {
@@ -40,10 +41,8 @@ extension NSScreen {
     }
 }
 
-/// Dock 目前停靠的邊(讀取系統偏好設定)。
-enum DockOrientation: String {
-    case bottom, left, right
-
+extension DockOrientation {
+    /// Dock 目前停靠的邊(讀取系統偏好設定)。
     static func current() -> DockOrientation {
         let value = CFPreferencesCopyAppValue("orientation" as CFString, "com.apple.dock" as CFString) as? String
         return DockOrientation(rawValue: value ?? "bottom") ?? .bottom

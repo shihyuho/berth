@@ -6,3 +6,4 @@
 - [運作原理](how-it-works.md)：Dock 行為、螢幕變更與隱私邊界。
 - [疑難排解](troubleshooting.md)：常見設定與權限問題。
 - [開發](development.md)：從原始碼建置 Berth，並了解發布相關檔案。
+- [測試](testing.md)：執行自動化基線與發布前 smoke test。
