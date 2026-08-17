@@ -21,7 +21,7 @@ cask "berth" do
   version "$VERSION"
   sha256 "$SHA256"
 
-  url "https://github.com/shihyuho/berth/releases/download/#{version}/Berth-#{version}-arm64.zip"
+  url "https://github.com/shihyuho/berth/releases/download/#{version}/Berth-arm64.zip"
   name "Berth"
   desc "Keep your macOS Dock on the display you choose"
   homepage "https://github.com/shihyuho/berth"

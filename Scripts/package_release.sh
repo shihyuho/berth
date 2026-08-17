@@ -13,7 +13,7 @@ fi
 
 BERTH_ARCH=arm64 ./Scripts/build.sh
 
-ASSET="dist/Berth-${VERSION}-arm64.zip"
+ASSET="dist/Berth-arm64.zip"
 rm -f "$ASSET"
 ditto --norsrc -c -k --keepParent dist/Berth.app "$ASSET"
 

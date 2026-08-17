@@ -72,7 +72,7 @@ jobs:
         env:
           TAG: ${{ needs.release-please.outputs.tag_name }}
         run: |
-          asset="dist/Berth-${TAG}-arm64.zip"
+          asset="dist/Berth-arm64.zip"
           echo "sha256=$(shasum -a 256 "$asset" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
       - uses: actions/create-github-app-token@v3.2.0
         id: app-token
@@ -84,7 +84,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TAG: ${{ needs.release-please.outputs.tag_name }}
-        run: gh release upload "$TAG" "dist/Berth-${TAG}-arm64.zip" --clobber
+        run: gh release upload "$TAG" "dist/Berth-arm64.zip" --clobber
 
   update-homebrew-tap:
     runs-on: ubuntu-latest
