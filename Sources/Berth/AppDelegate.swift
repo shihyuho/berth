@@ -22,7 +22,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.title = "⚓"
+        if let button = statusItem.button {
+            button.image = Self.createStatusIcon()
+        }
         let menu = NSMenu()
         menu.delegate = self
         menu.autoenablesItems = false
@@ -206,5 +208,63 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func quitClicked() {
         NSApp.terminate(nil)
+    }
+
+    // MARK: - 圖示繪製
+
+    private static func createStatusIcon() -> NSImage {
+        let size = NSSize(width: 18, height: 18)
+        let img = NSImage(size: size, flipped: false) { rect in
+            let path = NSBezierPath()
+            path.lineWidth = 1.3
+            path.lineCapStyle = .round
+            path.lineJoinStyle = .round
+
+            // 頂部圓環
+            let ringRect = NSRect(x: 7.25, y: 12.5, width: 3.5, height: 3.5)
+            let ring = NSBezierPath(ovalIn: ringRect)
+            ring.lineWidth = 1.2
+            ring.stroke()
+
+            // 橫桿
+            path.move(to: NSPoint(x: 4.5, y: 11.5))
+            path.line(to: NSPoint(x: 13.5, y: 11.5))
+
+            // 中央垂直桿
+            path.move(to: NSPoint(x: 9.0, y: 12.5))
+            path.line(to: NSPoint(x: 9.0, y: 3.0))
+
+            // 底部弧度 (錨臂)
+            path.move(to: NSPoint(x: 4.0, y: 7.5))
+            path.curve(
+                to: NSPoint(x: 14.0, y: 7.5),
+                controlPoint1: NSPoint(x: 4.0, y: 2.0),
+                controlPoint2: NSPoint(x: 14.0, y: 2.0)
+            )
+            path.stroke()
+
+            // 左右兩側倒鉤
+            let leftFluke = NSBezierPath()
+            leftFluke.move(to: NSPoint(x: 2.8, y: 6.8))
+            leftFluke.line(to: NSPoint(x: 4.0, y: 8.2))
+            leftFluke.line(to: NSPoint(x: 5.2, y: 6.8))
+            leftFluke.lineWidth = 1.1
+            leftFluke.lineCapStyle = .round
+            leftFluke.lineJoinStyle = .round
+            leftFluke.stroke()
+
+            let rightFluke = NSBezierPath()
+            rightFluke.move(to: NSPoint(x: 12.8, y: 6.8))
+            rightFluke.line(to: NSPoint(x: 14.0, y: 8.2))
+            rightFluke.line(to: NSPoint(x: 15.2, y: 6.8))
+            rightFluke.lineWidth = 1.1
+            rightFluke.lineCapStyle = .round
+            rightFluke.lineJoinStyle = .round
+            rightFluke.stroke()
+
+            return true
+        }
+        img.isTemplate = true
+        return img
     }
 }
