@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Berth - Keep your Dock where it belongs</title>
+  <meta name="description" content="Berth keeps the macOS Dock on the display you choose." />
+  <meta name="theme-color" content="#f5f8fa" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0c1217" media="(prefers-color-scheme: dark)" />
+  <link rel="canonical" href="https://shihyuho.github.io/berth/" />
+  <link rel="alternate" hreflang="en" href="https://shihyuho.github.io/berth/" />
+  <link rel="alternate" hreflang="zh-Hant" href="https://shihyuho.github.io/berth/zh-TW/" />
+  <link rel="alternate" hreflang="x-default" href="https://shihyuho.github.io/berth/" />
+  <meta property="og:title" content="Berth" />
+  <meta property="og:description" content="Keep your macOS Dock on the display you choose." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://shihyuho.github.io/berth/" />
+  <link rel="icon" href="assets/app-icon.png" type="image/png" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>document.documentElement.classList.add("js");</script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="Berth home"><img class="brand-icon" src="assets/app-icon.png" alt="" /><span>Berth</span></a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="section-link" href="#how">How it works</a>
+        <a class="section-link" href="#install">Install</a>
+        <a href="https://github.com/shihyuho/berth/blob/main/docs/README.md">Docs</a>
+        <a href="zh-TW/" lang="zh-Hant">繁體中文</a>
+        <a href="https://github.com/shihyuho/berth">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <h1>Keep your Dock where it belongs.</h1>
+          <p>Berth keeps the macOS Dock on the display you choose, without getting in the way of your pointer.</p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip">Download</a>
+            <a class="button secondary" href="https://github.com/shihyuho/berth/blob/main/docs/getting-started.md">Read the guide</a>
+          </div>
+        </div>
+
+        <div class="berth-demo" data-demo aria-label="Choose the display where the Dock should stay">
+          <div class="display-stage" aria-live="polite">
+            <div class="display selected" data-display="left">
+              <div class="display-bar"></div>
+              <div class="dock" aria-hidden="true"></div>
+            </div>
+            <div class="display" data-display="right">
+              <div class="display-bar"></div>
+              <div class="dock" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="display-controls" aria-label="Dock berth">
+            <span>Dock berth</span>
+            <button type="button" data-select="left" aria-pressed="true">Left display</button>
+            <button type="button" data-select="right" aria-pressed="false">Right display</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="wrap how-grid">
+        <div class="section-copy">
+          <h2>Choose a display. Berth handles the rest.</h2>
+          <p>It blocks the Dock summon gesture on other outer edges and brings the Dock back when macOS moves it.</p>
+        </div>
+        <div class="principles">
+          <article><h3>Your pointer stays free</h3><p>Shared display edges remain open, so moving between screens still feels normal.</p></article>
+          <article><h3>Your Dock comes back</h3><p>Berth checks its position and summons it to the selected display when needed.</p></article>
+          <article><h3>Your activity stays local</h3><p>No keyboard monitoring, saved input, analytics, or network connection.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section install" id="install">
+      <div class="wrap">
+        <div class="install-head">
+          <h2>Ready in a minute.</h2>
+          <p>Download the App directly or let Homebrew manage updates.</p>
+        </div>
+        <div class="install-grid">
+          <div class="download-block">
+            <h3>Direct download</h3>
+            <p>Apple Silicon, macOS 13 or later.</p>
+            <a class="text-link" href="https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip">Download Berth</a>
+          </div>
+          <div class="command-block">
+            <div class="command-head"><h3>Homebrew</h3><button class="copy" type="button" data-copy data-copied="Copied">Copy</button></div>
+            <pre><code>brew tap shihyuho/tap
+brew install --cask shihyuho/tap/berth</code></pre>
+          </div>
+        </div>
+        <p class="install-note">Berth requires Accessibility access. The App interface is currently in Traditional Chinese; <a href="https://github.com/shihyuho/berth/issues/6">English localization is tracked separately</a>.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>Berth for macOS</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/shihyuho/berth/blob/main/docs/README.md">Documentation</a>
+        <a href="https://github.com/shihyuho/berth">GitHub</a>
+        <a href="zh-TW/" lang="zh-Hant">繁體中文</a>
+        <a href="https://github.com/shihyuho/berth/blob/main/LICENSE">MIT License</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

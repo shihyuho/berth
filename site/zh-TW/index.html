@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Berth - 讓 Dock 停在它該停的螢幕</title>
+  <meta name="description" content="Berth 讓 macOS Dock 固定在你選擇的螢幕。" />
+  <meta name="theme-color" content="#f5f8fa" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0c1217" media="(prefers-color-scheme: dark)" />
+  <link rel="canonical" href="https://shihyuho.github.io/berth/zh-TW/" />
+  <link rel="alternate" hreflang="en" href="https://shihyuho.github.io/berth/" />
+  <link rel="alternate" hreflang="zh-Hant" href="https://shihyuho.github.io/berth/zh-TW/" />
+  <link rel="alternate" hreflang="x-default" href="https://shihyuho.github.io/berth/" />
+  <meta property="og:title" content="Berth" />
+  <meta property="og:description" content="讓 macOS Dock 固定在你選擇的螢幕。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://shihyuho.github.io/berth/zh-TW/" />
+  <link rel="icon" href="../assets/app-icon.png" type="image/png" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script>document.documentElement.classList.add("js");</script>
+  <script src="../app.js" defer></script>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="Berth 首頁"><img class="brand-icon" src="../assets/app-icon.png" alt="" /><span>Berth</span></a>
+      <nav class="nav-links" aria-label="主要導覽">
+        <a class="section-link" href="#how">運作方式</a>
+        <a class="section-link" href="#install">安裝</a>
+        <a href="https://github.com/shihyuho/berth/blob/main/docs/zh-TW/README.md">文件</a>
+        <a href="../" lang="en">English</a>
+        <a href="https://github.com/shihyuho/berth">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <h1>讓 Dock 停在它該停的螢幕。</h1>
+          <p>Berth 讓 macOS Dock 固定在你選擇的螢幕，同時維持游標自由移動。</p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip">下載</a>
+            <a class="button secondary" href="https://github.com/shihyuho/berth/blob/main/docs/zh-TW/getting-started.md">閱讀指南</a>
+          </div>
+        </div>
+
+        <div class="berth-demo" data-demo aria-label="選擇 Dock 要停留的螢幕">
+          <div class="display-stage" aria-live="polite">
+            <div class="display selected" data-display="left">
+              <div class="display-bar"></div>
+              <div class="dock" aria-hidden="true"></div>
+            </div>
+            <div class="display" data-display="right">
+              <div class="display-bar"></div>
+              <div class="dock" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="display-controls" aria-label="Dock 泊位">
+            <span>Dock 泊位</span>
+            <button type="button" data-select="left" aria-pressed="true">左側螢幕</button>
+            <button type="button" data-select="right" aria-pressed="false">右側螢幕</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="wrap how-grid">
+        <div class="section-copy">
+          <h2>選擇螢幕，其他交給 Berth。</h2>
+          <p>它會阻止其他外側邊緣的 Dock 召喚手勢，並在 macOS 移動 Dock 後把它帶回來。</p>
+        </div>
+        <div class="principles">
+          <article><h3>游標保持自由</h3><p>螢幕之間的共用邊界保持暢通，跨螢幕移動仍然自然。</p></article>
+          <article><h3>Dock 自動回來</h3><p>Berth 會檢查 Dock 位置，必要時將它召回指定螢幕。</p></article>
+          <article><h3>活動留在本機</h3><p>不監看鍵盤、不保存輸入內容、不收集分析資料，也沒有網路連線。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section install" id="install">
+      <div class="wrap">
+        <div class="install-head">
+          <h2>一分鐘內開始使用。</h2>
+          <p>直接下載 App，或交給 Homebrew 管理更新。</p>
+        </div>
+        <div class="install-grid">
+          <div class="download-block">
+            <h3>直接下載</h3>
+            <p>Apple Silicon，macOS 13 以上版本。</p>
+            <a class="text-link" href="https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip">下載 Berth</a>
+          </div>
+          <div class="command-block">
+            <div class="command-head"><h3>Homebrew</h3><button class="copy" type="button" data-copy data-copied="已複製">複製</button></div>
+            <pre><code>brew tap shihyuho/tap
+brew install --cask shihyuho/tap/berth</code></pre>
+          </div>
+        </div>
+        <p class="install-note">Berth 需要「輔助使用」權限。第一次開啟與更新後的授權方式請參考<a href="https://github.com/shihyuho/berth/blob/main/docs/zh-TW/getting-started.md">開始使用</a>。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>Berth for macOS</span>
+      <nav aria-label="頁尾">
+        <a href="https://github.com/shihyuho/berth/blob/main/docs/zh-TW/README.md">文件</a>
+        <a href="https://github.com/shihyuho/berth">GitHub</a>
+        <a href="../" lang="en">English</a>
+        <a href="https://github.com/shihyuho/berth/blob/main/LICENSE">MIT License</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
