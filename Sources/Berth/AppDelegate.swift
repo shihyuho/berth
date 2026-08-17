@@ -22,7 +22,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.title = "⚓"
+        if let button = statusItem.button {
+            button.image = NSImage(systemSymbolName: "anchor", accessibilityDescription: "Berth")
+            button.image?.isTemplate = true
+        }
         let menu = NSMenu()
         menu.delegate = self
         menu.autoenablesItems = false
