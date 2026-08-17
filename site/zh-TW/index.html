@@ -28,8 +28,8 @@
       document.querySelector('meta[name="theme-color"]').setAttribute("content", resolvedTheme === "dark" ? "#0c1217" : "#f5f8fa");
     } catch (error) {}
   </script>
-  <link rel="stylesheet" href="../styles.css" />
-  <script src="../app.js" defer></script>
+  <link rel="stylesheet" href="../styles.css?v=3" />
+  <script src="../app.js?v=3" defer></script>
 </head>
 <body>
   <header class="nav">
@@ -39,10 +39,12 @@
         <a class="section-link" href="#how">運作方式</a>
         <a class="section-link" href="#install">安裝</a>
         <a class="nav-secondary" href="https://github.com/shihyuho/berth/blob/main/docs/zh-TW/README.md">文件</a>
-        <button class="theme-toggle" type="button" data-theme-toggle data-label-system="系統" data-label-light="淺色" data-label-dark="深色" data-label-prefix="顯示主題" data-label-next="下一個" aria-label="顯示主題：系統。下一個：淺色。">◐</button>
-        <a href="../" lang="en">English</a>
         <a class="nav-github" href="https://github.com/shihyuho/berth">GitHub</a>
       </nav>
+      <div class="nav-right">
+        <button class="theme-toggle" type="button" data-theme-toggle data-label-system="系統" data-label-light="淺色" data-label-dark="深色" data-label-prefix="顯示主題" data-label-next="下一個" aria-label="顯示主題：系統。下一個：淺色。">◐</button>
+        <a href="../" lang="en">English</a>
+      </div>
     </div>
   </header>
 

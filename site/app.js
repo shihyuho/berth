@@ -59,9 +59,15 @@
     });
   }
 
-  themeMedia.addEventListener("change", function () {
+  function handleSystemThemeChange() {
     if (themeChoice === "system") updateThemeColor();
-  });
+  }
+
+  if (typeof themeMedia.addEventListener === "function") {
+    themeMedia.addEventListener("change", handleSystemThemeChange);
+  } else if (typeof themeMedia.addListener === "function") {
+    themeMedia.addListener(handleSystemThemeChange);
+  }
 
   applyTheme(themeChoice, false);
 
