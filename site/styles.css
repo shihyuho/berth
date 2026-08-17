@@ -36,6 +36,36 @@
   }
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f5f8fa;
+  --surface: #fbfdfe;
+  --surface-2: #eaf1f5;
+  --text: #14212b;
+  --soft: #586874;
+  --faint: #7b8b96;
+  --border: #d6e1e7;
+  --border-strong: #b7c9d3;
+  --accent: #2678a6;
+  --accent-hover: #1e658e;
+  --accent-ink: #f7fbfd;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0c1217;
+  --surface: #121b22;
+  --surface-2: #18252e;
+  --text: #edf5f8;
+  --soft: #a8bac4;
+  --faint: #7f949f;
+  --border: #24343e;
+  --border-strong: #38505e;
+  --accent: #68b8df;
+  --accent-hover: #83cae9;
+  --accent-ink: #0b1820;
+}
+
 *, *::before, *::after { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
@@ -104,7 +134,7 @@ button { font: inherit; }
 .footer nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 18px;
   color: var(--soft);
   font-size: 0.9rem;
 }
@@ -118,6 +148,33 @@ button { font: inherit; }
 .nav-links a:hover,
 .footer a:hover,
 .install-note a:hover { color: var(--accent); }
+
+.theme-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.theme-switcher button {
+  min-height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 650;
+  transition: color 180ms var(--ease), background 180ms var(--ease), transform 100ms var(--ease);
+}
+
+.theme-switcher button:hover { color: var(--text); }
+.theme-switcher button:active { transform: translateY(1px); }
+.theme-switcher button[aria-pressed="true"] { background: var(--surface-2); color: var(--text); }
 
 .hero {
   min-height: calc(100dvh - 64px);
@@ -350,8 +407,8 @@ pre {
 
 @media (max-width: 700px) {
   .wrap { padding-inline: 18px; }
-  .section-link { display: none; }
-  .nav-links { gap: 15px; font-size: 0.84rem; }
+  .section-link, .nav-secondary, .nav-github { display: none; }
+  .nav-links { gap: 12px; font-size: 0.84rem; }
   .hero { padding-block: 52px 70px; }
   .hero h1 { font-size: clamp(2.65rem, 13vw, 4.4rem); }
   .display-stage { gap: 8px; }
@@ -364,9 +421,9 @@ pre {
 }
 
 @media (max-width: 430px) {
-  .nav-links a:nth-last-child(1) { display: none; }
   .brand { gap: 7px; }
   .brand-icon { width: 25px; height: 25px; }
+  .theme-switcher button { padding-inline: 6px; font-size: 0.7rem; }
   .hero-copy > p { max-width: 32ch; }
   .actions { align-items: stretch; flex-direction: column; }
   .button { width: 100%; }
