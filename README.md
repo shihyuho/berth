@@ -14,26 +14,53 @@
 </p>
 
 <p align="center">
-  A quiet macOS menu bar app that keeps the Dock on the display you choose.
+  <a href="https://shihyuho.github.io/berth/"><img src="https://img.shields.io/badge/website-2678a6" alt="Website" /></a>
+  <a href="https://github.com/shihyuho/berth/releases/latest"><img src="https://img.shields.io/github/v/release/shihyuho/berth?label=release" alt="Latest release" /></a>
+  <img src="https://img.shields.io/badge/macOS-13%2B-14212b" alt="macOS 13 or later" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip"><strong>Download for Apple Silicon</strong></a>
-  ·
-  <a href="https://shihyuho.github.io/berth/">Website</a>
-  ·
-  <a href="docs/getting-started.md">Getting started</a>
-</p>
+On a multi-display Mac, the Dock can follow the pointer to a screen where you do not want it. Berth is a small menu bar app that gives the Dock a chosen berth and keeps it there.
 
-## Install with Homebrew
+It does not change your Dock preferences or block the pointer from crossing between displays. Choose a screen once, then let Berth quietly handle the rest.
+
+## Why Berth?
+
+- **Choose the Dock's display** from a simple menu bar menu.
+- **Bring it back automatically** when macOS moves it elsewhere.
+- **Keep pointer movement natural** across shared display edges.
+- **Match your setup** with bottom, left, and right Dock positions.
+- **Stay private by design** with no keyboard monitoring, analytics, saved input, or network connection.
+- **Start with your Mac** through the built-in Launch at Login option.
+
+## Get started
+
+### Direct download
+
+Download [Berth for Apple Silicon](https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip), unzip it, and move `Berth.app` to Applications.
+
+### Homebrew
 
 ```sh
 brew tap shihyuho/tap
 brew install --cask shihyuho/tap/berth
 ```
 
-Requires macOS 13 or later on Apple Silicon. Berth needs Accessibility access to keep the Dock in place.
+### After installation
 
-The App interface is currently in Traditional Chinese. English localization is tracked in [Issue #6](https://github.com/shihyuho/berth/issues/6).
+Open Berth, select the anchor in the menu bar, choose a display, and grant Accessibility access when macOS asks. See [Getting started](docs/getting-started.md) for first-launch and update details.
+
+Berth requires macOS 13 or later on Apple Silicon.
+
+## Learn more
+
+| Guide | What it covers |
+| --- | --- |
+| [Getting started](docs/getting-started.md) | Installation, Gatekeeper, Accessibility permission, and updates |
+| [How Berth works](docs/how-it-works.md) | Dock behavior, display changes, and privacy boundaries |
+| [Troubleshooting](docs/troubleshooting.md) | Common setup and permission problems |
+| [Development](docs/development.md) | Building from source, versions, and release packaging |
+
+## License
 
 [MIT](LICENSE) © Shihyu
