@@ -28,8 +28,8 @@
       document.querySelector('meta[name="theme-color"]').setAttribute("content", resolvedTheme === "dark" ? "#0c1217" : "#f5f8fa");
     } catch (error) {}
   </script>
-  <link rel="stylesheet" href="styles.css" />
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=3" />
+  <script src="app.js?v=3" defer></script>
 </head>
 <body>
   <header class="nav">
@@ -39,10 +39,12 @@
         <a class="section-link" href="#how">How it works</a>
         <a class="section-link" href="#install">Install</a>
         <a class="nav-secondary" href="https://github.com/shihyuho/berth/blob/main/docs/README.md">Docs</a>
-        <button class="theme-toggle" type="button" data-theme-toggle data-label-system="System" data-label-light="Light" data-label-dark="Dark" data-label-prefix="Theme" data-label-next="Next" aria-label="Theme: System. Next: Light.">◐</button>
-        <a href="zh-TW/" lang="zh-Hant">繁體中文</a>
         <a class="nav-github" href="https://github.com/shihyuho/berth">GitHub</a>
       </nav>
+      <div class="nav-right">
+        <button class="theme-toggle" type="button" data-theme-toggle data-label-system="System" data-label-light="Light" data-label-dark="Dark" data-label-prefix="Theme" data-label-next="Next" aria-label="Theme: System. Next: Light.">◐</button>
+        <a href="zh-TW/" lang="zh-Hant">繁體中文</a>
+      </div>
     </div>
   </header>
 

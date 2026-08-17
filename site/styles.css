@@ -139,13 +139,23 @@ button { font: inherit; }
   font-size: 0.9rem;
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--soft);
+  font-size: 0.9rem;
+}
+
 .nav-links a,
+.nav-right a,
 .footer a,
 .install-note a {
   transition: color 180ms var(--ease);
 }
 
 .nav-links a:hover,
+.nav-right a:hover,
 .footer a:hover,
 .install-note a:hover { color: var(--accent); }
 
@@ -396,13 +406,12 @@ pre {
   .hero-grid { gap: 48px; }
   .hero h1 { max-width: 13ch; }
   .berth-demo { max-width: 680px; }
-  .section-link, .nav-secondary, .nav-github { display: none; }
-  .nav-links { gap: 12px; }
+  .nav-links { display: none; }
 }
 
 @media (max-width: 700px) {
   .wrap { padding-inline: 18px; }
-  .nav-links { gap: 12px; font-size: 0.84rem; }
+  .nav-right { gap: 12px; font-size: 0.84rem; }
   .hero { padding-block: 52px 70px; }
   .hero h1 { font-size: clamp(2.65rem, 13vw, 4.4rem); }
   .display-stage { gap: 8px; }
