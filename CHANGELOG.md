@@ -15,6 +15,4 @@
 
 * draw vector anchor template image for status bar icon ([06cfee2](https://github.com/shihyuho/berth/commit/06cfee2b874531c82308e802eac6c385e34b7e54))
 
-## Changelog
-
 All notable changes from 1.0.0 onward are tracked here.
