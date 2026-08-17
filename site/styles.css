@@ -149,32 +149,25 @@ button { font: inherit; }
 .footer a:hover,
 .install-note a:hover { color: var(--accent); }
 
-.theme-switcher {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 3px;
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-}
-
-.theme-switcher button {
-  min-height: 28px;
-  padding: 0 8px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--faint);
+  color: var(--soft);
   cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 650;
-  transition: color 180ms var(--ease), background 180ms var(--ease), transform 100ms var(--ease);
+  font-family: Arial, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1;
+  transition: color 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease), transform 100ms var(--ease);
 }
 
-.theme-switcher button:hover { color: var(--text); }
-.theme-switcher button:active { transform: translateY(1px); }
-.theme-switcher button[aria-pressed="true"] { background: var(--surface-2); color: var(--text); }
+.theme-toggle:hover { color: var(--text); border-color: var(--border-strong); }
+.theme-toggle:active { transform: translateY(1px); }
 
 .hero {
   min-height: calc(100dvh - 64px);
@@ -403,11 +396,12 @@ pre {
   .hero-grid { gap: 48px; }
   .hero h1 { max-width: 13ch; }
   .berth-demo { max-width: 680px; }
+  .section-link, .nav-secondary, .nav-github { display: none; }
+  .nav-links { gap: 12px; }
 }
 
 @media (max-width: 700px) {
   .wrap { padding-inline: 18px; }
-  .section-link, .nav-secondary, .nav-github { display: none; }
   .nav-links { gap: 12px; font-size: 0.84rem; }
   .hero { padding-block: 52px 70px; }
   .hero h1 { font-size: clamp(2.65rem, 13vw, 4.4rem); }
@@ -423,7 +417,7 @@ pre {
 @media (max-width: 430px) {
   .brand { gap: 7px; }
   .brand-icon { width: 25px; height: 25px; }
-  .theme-switcher button { padding-inline: 6px; font-size: 0.7rem; }
+  .theme-toggle { width: 34px; height: 34px; }
   .hero-copy > p { max-width: 32ch; }
   .actions { align-items: stretch; flex-direction: column; }
   .button { width: 100%; }
