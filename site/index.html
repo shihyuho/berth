@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Berth - Keep your Dock where it belongs</title>
   <meta name="description" content="Berth keeps the macOS Dock on the display you choose." />
-  <meta name="theme-color" content="#f5f8fa" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#0c1217" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f5f8fa" />
   <link rel="canonical" href="https://shihyuho.github.io/berth/" />
   <link rel="alternate" hreflang="en" href="https://shihyuho.github.io/berth/" />
   <link rel="alternate" hreflang="zh-Hant" href="https://shihyuho.github.io/berth/zh-TW/" />
@@ -16,8 +15,20 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://shihyuho.github.io/berth/" />
   <link rel="icon" href="assets/app-icon.png" type="image/png" />
+  <script>
+    document.documentElement.classList.add("js");
+    try {
+      var savedTheme = localStorage.getItem("berth-theme");
+      if (savedTheme === "light" || savedTheme === "dark") {
+        document.documentElement.setAttribute("data-theme", savedTheme);
+      }
+      var resolvedTheme = savedTheme === "light" || savedTheme === "dark"
+        ? savedTheme
+        : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", resolvedTheme === "dark" ? "#0c1217" : "#f5f8fa");
+    } catch (error) {}
+  </script>
   <link rel="stylesheet" href="styles.css" />
-  <script>document.documentElement.classList.add("js");</script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -27,9 +38,14 @@
       <nav class="nav-links" aria-label="Primary navigation">
         <a class="section-link" href="#how">How it works</a>
         <a class="section-link" href="#install">Install</a>
-        <a href="https://github.com/shihyuho/berth/blob/main/docs/README.md">Docs</a>
+        <a class="nav-secondary" href="https://github.com/shihyuho/berth/blob/main/docs/README.md">Docs</a>
+        <div class="theme-switcher" role="group" aria-label="Color theme">
+          <button type="button" data-theme-option="system" aria-pressed="true">System</button>
+          <button type="button" data-theme-option="light" aria-pressed="false">Light</button>
+          <button type="button" data-theme-option="dark" aria-pressed="false">Dark</button>
+        </div>
         <a href="zh-TW/" lang="zh-Hant">繁體中文</a>
-        <a href="https://github.com/shihyuho/berth">GitHub</a>
+        <a class="nav-github" href="https://github.com/shihyuho/berth">GitHub</a>
       </nav>
     </div>
   </header>
@@ -98,7 +114,7 @@
 brew install --cask shihyuho/tap/berth</code></pre>
           </div>
         </div>
-        <p class="install-note">Berth requires Accessibility access. The App interface is currently in Traditional Chinese; <a href="https://github.com/shihyuho/berth/issues/6">English localization is tracked separately</a>.</p>
+        <p class="install-note">Berth requires Accessibility access.</p>
       </div>
     </section>
   </main>
