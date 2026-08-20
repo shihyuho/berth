@@ -198,4 +198,108 @@ final class DockGeometryTests: XCTestCase {
 
         XCTAssertEqual(location, original)
     }
+
+    func testSummonLocationUsesBottomMidpointWhenExposed() {
+        let displays = [
+            DisplayBounds(id: 1, bounds: CGRect(x: 0, y: 0, width: 100, height: 100)),
+            DisplayBounds(id: 2, bounds: CGRect(x: 100, y: 0, width: 100, height: 100)),
+        ]
+
+        let location = DockGeometry.summonLocation(
+            for: 1,
+            orientation: .bottom,
+            displays: displays
+        )
+
+        XCTAssertEqual(location, CGPoint(x: 50, y: 99))
+    }
+
+    func testSummonLocationMovesOffBlockedBottomMidpoint() {
+        let displays = [
+            DisplayBounds(id: 1, bounds: CGRect(x: -10, y: -100, width: 120, height: 100)),
+            DisplayBounds(id: 2, bounds: CGRect(x: 0, y: 0, width: 80, height: 100)),
+        ]
+
+        let location = DockGeometry.summonLocation(
+            for: 1,
+            orientation: .bottom,
+            displays: displays
+        )
+
+        XCTAssertEqual(location, CGPoint(x: 82, y: -1))
+    }
+
+    func testSummonLocationMovesOffBlockedLeftMidpoint() {
+        let displays = [
+            DisplayBounds(id: 1, bounds: CGRect(x: 0, y: 0, width: 100, height: 120)),
+            DisplayBounds(id: 2, bounds: CGRect(x: -100, y: 0, width: 100, height: 80)),
+        ]
+
+        let location = DockGeometry.summonLocation(
+            for: 1,
+            orientation: .left,
+            displays: displays
+        )
+
+        XCTAssertEqual(location, CGPoint(x: 0, y: 82))
+    }
+
+    func testSummonLocationMovesOffBlockedRightMidpoint() {
+        let displays = [
+            DisplayBounds(id: 1, bounds: CGRect(x: 0, y: 0, width: 100, height: 120)),
+            DisplayBounds(id: 2, bounds: CGRect(x: 100, y: 40, width: 100, height: 80)),
+        ]
+
+        let location = DockGeometry.summonLocation(
+            for: 1,
+            orientation: .right,
+            displays: displays
+        )
+
+        XCTAssertEqual(location, CGPoint(x: 99, y: 38))
+    }
+
+    func testSummonLocationReturnsNilWhenEntireEdgeIsBlocked() {
+        let displays = [
+            DisplayBounds(id: 1, bounds: CGRect(x: 0, y: 0, width: 100, height: 100)),
+            DisplayBounds(id: 2, bounds: CGRect(x: 0, y: 100, width: 100, height: 100)),
+        ]
+
+        let location = DockGeometry.summonLocation(
+            for: 1,
+            orientation: .bottom,
+            displays: displays
+        )
+
+        XCTAssertNil(location)
+    }
+
+    func testSummonLocationIgnoresMirroredDisplay() {
+        let displays = [
+            DisplayBounds(id: 1, bounds: CGRect(x: 0, y: 0, width: 100, height: 100)),
+            DisplayBounds(
+                id: 2,
+                bounds: CGRect(x: 0, y: 100, width: 100, height: 100),
+                isMirrored: true
+            ),
+        ]
+
+        let location = DockGeometry.summonLocation(
+            for: 1,
+            orientation: .bottom,
+            displays: displays
+        )
+
+        XCTAssertEqual(location, CGPoint(x: 50, y: 99))
+    }
+
+    func testSummonLocationReturnsNilWhenDisplayIsMissing() {
+        let location = DockGeometry.summonLocation(
+            for: 2,
+            orientation: .bottom,
+            displays: [DisplayBounds(id: 1, bounds: CGRect(x: 0, y: 0, width: 100, height: 100))]
+        )
+
+        XCTAssertNil(location)
+    }
 }

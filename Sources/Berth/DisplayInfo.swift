@@ -30,6 +30,16 @@ struct DisplayInfo: Equatable {
         return Array(ids.prefix(Int(count)))
     }
 
+    static func activeDisplayBounds() -> [DisplayBounds] {
+        activeDisplayIDs().map {
+            DisplayBounds(
+                id: $0,
+                bounds: CGDisplayBounds($0),
+                isMirrored: CGDisplayMirrorsDisplay($0) != 0
+            )
+        }
+    }
+
     static func uuidString(for id: CGDirectDisplayID) -> String? {
         guard let cfUUID = CGDisplayCreateUUIDFromDisplayID(id)?.takeRetainedValue() else { return nil }
         return CFUUIDCreateString(nil, cfUUID) as String?

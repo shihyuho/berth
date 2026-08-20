@@ -34,6 +34,10 @@ enum DockMover {
 
     private static let summonQueue = DispatchQueue(label: "com.shihyuho.berth.summon")
     private static var summonInFlight = false // 只在主執行緒讀寫
+    private static let summonAttempts = 2
+    private static let pressureEventCount = 150
+    private static let pressureEventDelay: useconds_t = 10_000
+    private static let settlingDelay: useconds_t = 200_000
 
     /// 在固定螢幕的 Dock 邊緣合成「持續下壓」的滑鼠事件,把 Dock 召回來。
     /// 等同使用者親手把游標推到邊緣再往外壓的手勢。
@@ -43,31 +47,35 @@ enum DockMover {
         guard !summonInFlight else { return }
         summonInFlight = true
         summonQueue.async {
-            performSummon(displayID: displayID, orientation: orientation)
+            for _ in 0..<summonAttempts {
+                if dockDisplayID() == displayID { break }
+                performSummon(displayID: displayID, orientation: orientation)
+                usleep(settlingDelay)
+            }
             DispatchQueue.main.async { summonInFlight = false }
         }
     }
 
     private static func performSummon(displayID: CGDirectDisplayID, orientation: DockOrientation) {
-        let bounds = CGDisplayBounds(displayID)
-        let target: CGPoint
+        guard let target = DockGeometry.summonLocation(
+            for: displayID,
+            orientation: orientation,
+            displays: DisplayInfo.activeDisplayBounds()
+        ) else { return }
         let delta: (x: Int64, y: Int64)
         switch orientation {
         case .bottom:
-            target = CGPoint(x: bounds.midX, y: bounds.maxY - 1)
             delta = (0, 30)
         case .left:
-            target = CGPoint(x: bounds.minX, y: bounds.midY)
             delta = (-30, 0)
         case .right:
-            target = CGPoint(x: bounds.maxX - 1, y: bounds.midY)
             delta = (30, 0)
         }
 
         let original = CGEvent(source: nil)?.location
         let source = CGEventSource(stateID: .hidSystemState)
         CGWarpMouseCursorPosition(target)
-        for _ in 0..<20 {
+        for _ in 0..<pressureEventCount {
             guard let event = CGEvent(
                 mouseEventSource: source, mouseType: .mouseMoved,
                 mouseCursorPosition: target, mouseButton: .left
@@ -75,7 +83,7 @@ enum DockMover {
             event.setIntegerValueField(.mouseEventDeltaX, value: delta.x)
             event.setIntegerValueField(.mouseEventDeltaY, value: delta.y)
             event.post(tap: .cghidEventTap)
-            usleep(6000)
+            usleep(pressureEventDelay)
         }
         if let original {
             CGWarpMouseCursorPosition(original)

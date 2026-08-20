@@ -21,6 +21,58 @@ public struct DisplayBounds: Equatable {
 public enum DockGeometry {
     private static let margin: CGFloat = 2
 
+    public static func summonLocation(
+        for displayID: CGDirectDisplayID,
+        orientation: DockOrientation,
+        displays: [DisplayBounds]
+    ) -> CGPoint? {
+        let nonMirroredDisplays = displays.filter { !$0.isMirrored }
+        guard let display = nonMirroredDisplays.first(where: { $0.id == displayID }) else {
+            return nil
+        }
+        let otherDisplays = nonMirroredDisplays.filter { $0.id != displayID }
+        let bounds = display.bounds
+        let preferredCoordinate: CGFloat
+        let validRange: ClosedRange<CGFloat>
+        let candidatesFromDisplay: (CGRect) -> [CGFloat]
+        let location: (CGFloat) -> CGPoint
+        let beyondEdge: (CGFloat) -> CGPoint
+
+        switch orientation {
+        case .bottom:
+            preferredCoordinate = bounds.midX
+            validRange = (bounds.minX + margin)...(bounds.maxX - margin)
+            candidatesFromDisplay = { [$0.minX - margin, $0.maxX + margin] }
+            location = { CGPoint(x: $0, y: bounds.maxY - 1) }
+            beyondEdge = { CGPoint(x: $0, y: bounds.maxY + margin) }
+        case .left:
+            preferredCoordinate = bounds.midY
+            validRange = (bounds.minY + margin)...(bounds.maxY - margin)
+            candidatesFromDisplay = { [$0.minY - margin, $0.maxY + margin] }
+            location = { CGPoint(x: bounds.minX, y: $0) }
+            beyondEdge = { CGPoint(x: bounds.minX - margin, y: $0) }
+        case .right:
+            preferredCoordinate = bounds.midY
+            validRange = (bounds.minY + margin)...(bounds.maxY - margin)
+            candidatesFromDisplay = { [$0.minY - margin, $0.maxY + margin] }
+            location = { CGPoint(x: bounds.maxX - 1, y: $0) }
+            beyondEdge = { CGPoint(x: bounds.maxX + margin, y: $0) }
+        }
+
+        var candidates = [preferredCoordinate, validRange.lowerBound, validRange.upperBound]
+        candidates += otherDisplays.flatMap { candidatesFromDisplay($0.bounds) }
+        return candidates
+            .filter { validRange.contains($0) }
+            .filter { coordinate in
+                let point = beyondEdge(coordinate)
+                return !otherDisplays.contains(where: { $0.bounds.contains(point) })
+            }
+            .min(by: {
+                abs($0 - preferredCoordinate) < abs($1 - preferredCoordinate)
+            })
+            .map(location)
+    }
+
     public static func restrictedLocation(
         _ location: CGPoint,
         pinnedDisplayID: CGDirectDisplayID?,
