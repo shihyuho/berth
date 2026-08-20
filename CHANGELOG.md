@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0](https://github.com/shihyuho/berth/compare/1.0.0...1.1.0) (2026-08-20)
+
+
+### Features
+
+* add settings window ([#20](https://github.com/shihyuho/berth/issues/20)) ([15161fc](https://github.com/shihyuho/berth/commit/15161fc825626444a49b2f0c413a7efcbc86f91a))
+* guide first-time setup and recovery ([#19](https://github.com/shihyuho/berth/issues/19)) ([02632bb](https://github.com/shihyuho/berth/commit/02632bbf60f9aed2d9581fb69fa3661e483b0361)), closes [#14](https://github.com/shihyuho/berth/issues/14)
+* localize the macOS app UI ([#17](https://github.com/shihyuho/berth/issues/17)) ([87aecf6](https://github.com/shihyuho/berth/commit/87aecf6051785a020de156713cbcac4a33496377))
+
 ## 1.0.0 (2026-08-17)
 
 
