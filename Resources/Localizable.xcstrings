@@ -1,6 +1,139 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "menu.continueSetup" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue Setup…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "繼續設定…" } }
+      }
+    },
+    "setup.accessibility.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth needs Accessibility permission to keep the Dock on the Pinned Display." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 需要「輔助使用」權限，才能將 Dock 保持在固定螢幕上。" } }
+      }
+    },
+    "setup.accessibility.grant" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Grant Accessibility Permission" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "授予「輔助使用」權限" } }
+      }
+    },
+    "setup.accessibility.granted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility permission is granted." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "已授予「輔助使用」權限。" } }
+      }
+    },
+    "setup.accessibility.required" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility permission is required." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "尚未授予「輔助使用」權限。" } }
+      }
+    },
+    "setup.accessibility.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility Permission" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "輔助使用權限" } }
+      }
+    },
+    "setup.close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "關閉" } }
+      }
+    },
+    "setup.environment.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth requires “Displays have separate Spaces” to be enabled. Check it in Desktop & Dock settings; macOS does not provide a reliable way to verify it automatically." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 需要開啟「顯示器具有獨立的空間」。請在「桌面與 Dock」設定中確認；macOS 沒有可靠的自動檢查方式。" } }
+      }
+    },
+    "setup.environment.openSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Desktop & Dock Settings…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "開啟「桌面與 Dock」設定…" } }
+      }
+    },
+    "setup.environment.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Display Spaces" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "顯示器空間" } }
+      }
+    },
+    "setup.introduction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Complete these steps in one place. You can close this window and continue later from the Berth menu." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "請在此完成設定。你可以關閉視窗，稍後再從 Berth 選單繼續。" } }
+      }
+    },
+    "setup.pinnedDisplay.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose the display where the Dock should remain." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "選擇 Dock 應保持所在的固定螢幕。" } }
+      }
+    },
+    "setup.pinnedDisplay.choose" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a display…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "選擇螢幕…" } }
+      }
+    },
+    "setup.pinnedDisplay.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pinned Display" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "固定螢幕" } }
+      }
+    },
+    "setup.status.needsAccessibility" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Grant Accessibility permission to continue." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "請授予「輔助使用」權限以繼續。" } }
+      }
+    },
+    "setup.status.needsPinnedDisplay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose a Pinned Display to continue." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "請選擇固定螢幕以繼續。" } }
+      }
+    },
+    "setup.status.pinnedDisplayMissing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The Pinned Display is unavailable. Connect it or choose another display." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "固定螢幕目前無法使用。請連接該螢幕或選擇其他螢幕。" } }
+      }
+    },
+    "setup.status.ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Setup complete. Dock Control is ready." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "設定完成。Dock 控制已就緒。" } }
+      }
+    },
+    "setup.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set Up Berth" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "設定 Berth" } }
+      }
+    },
     "display.fallbackName" : {
       "extractionState" : "manual",
       "localizations" : {

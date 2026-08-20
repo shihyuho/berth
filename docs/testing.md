@@ -32,6 +32,19 @@ For each supported App language (`English` and `繁體中文（台灣）`), sele
 
 Keep macOS-provided display names unchanged in both languages. Also enable Launch at Login, restart the login session, and confirm Berth launches with the selected language. Record any state that could not be exercised as outstanding pull-request verification; automated bundle lookup does not replace this UI evidence.
 
+## First-setup verification
+
+Before releasing setup changes, use a disposable user defaults domain or a fresh macOS account and verify:
+
+- First launch opens one setup window with the separate-Spaces guidance, Pinned Display chooser, and Accessibility section.
+- Closing before completion leaves the Berth menu available, shows **Continue Setup…**, and keeps Dock Control stopped.
+- The Desktop & Dock and Accessibility actions open the relevant System Settings areas.
+- Granting Accessibility permission updates the open setup window without a manual refresh action.
+- A valid Pinned Display plus Accessibility trust from an older installation records setup as complete without reopening onboarding.
+- Revoking Accessibility permission after completion stops Dock Control and shows its recovery action without reopening onboarding.
+- Disconnecting the Pinned Display after completion stops Dock Control and allows another display to be selected without reopening onboarding.
+- The complete flow and recovery states are usable in English and Taiwan Traditional Chinese.
+
 ## Release smoke test
 
 Automated coverage cannot prove real Accessibility, display, or Dock behavior. Before release, exercise this checklist on an Apple Silicon Mac:
