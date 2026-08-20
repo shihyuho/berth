@@ -112,7 +112,7 @@ jobs:
           repository: shihyuho/homebrew-tap
           path: homebrew-tap
           token: ${{ steps.app-token.outputs.token }}
-      - name: Update Cask and open pull request
+      - name: Update Cask, open and auto-merge pull request
         env:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -144,10 +144,18 @@ jobs:
           pr_url="$(gh pr list --repo shihyuho/homebrew-tap --head "$branch" --state open --json url --jq ".[0].url // empty")"
           if [[ -z "$pr_url" ]] && [[ -n "$(git log origin/main..HEAD --oneline)" ]]; then
             body="$(printf "Updates Berth to [%s](https://github.com/shihyuho/berth/releases/tag/%s).\n\nSHA-256: \`%s\`\n" "$TAG" "$TAG" "$SHA256")"
-            gh pr create \
+            pr_url="$(gh pr create \
               --repo shihyuho/homebrew-tap \
               --base main \
               --head "$branch" \
               --title "chore(berth): update to ${TAG}" \
-              --body "$body"
+              --body "$body")"
+          fi
+
+          if [[ -n "$pr_url" ]]; then
+            gh pr merge "$pr_url" \
+              --repo shihyuho/homebrew-tap \
+              --squash \
+              --auto \
+              --match-head-commit "$(git rev-parse HEAD)"
           fi
