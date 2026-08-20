@@ -7,8 +7,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let dockGuard = DockGuard()
     private var reconcileTimer: Timer?
     private var dockWatchTimer: Timer?
+    private var setupRefreshTimer: Timer?
+    private var setupWindowController: SetupWindowController?
 
     private static let pinnedKey = "PinnedDisplayUUID"
+    private static let setupCompletedKey = "HasCompletedSetup"
 
     private var pinnedUUID: String? {
         get { UserDefaults.standard.string(forKey: Self.pinnedKey) }
@@ -19,6 +22,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 UserDefaults.standard.removeObject(forKey: Self.pinnedKey)
             }
         }
+    }
+
+    private var hasCompletedSetup: Bool {
+        get { UserDefaults.standard.bool(forKey: Self.setupCompletedKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.setupCompletedKey) }
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -35,6 +43,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil, queue: .main
         ) { [weak self] _ in
+            self?.refreshSetupWindow()
             // 立即刷新幾何,避免 tap 拿舊的螢幕邊界 clamp 游標
             self?.reconcile(summonIfWrong: false)
             // 等系統把螢幕配置穩定下來再召喚 Dock
@@ -45,7 +54,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         // 定期對帳:涵蓋權限被授予/撤銷、固定的螢幕消失又出現等情況
         reconcileTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
+            self?.refreshSetupWindow()
             self?.reconcile(summonIfWrong: false)
+        }
+
+        let trusted = AXIsProcessTrusted()
+        let pinned = pinnedUUID.flatMap { DisplayInfo.resolve(uuid: $0) }
+        if resolveAndPersistSetupState(trusted: trusted, pinned: pinned).shouldPresentOnboarding {
+            openSetupWindow()
         }
         reconcile(summonIfWrong: true)
     }
@@ -56,11 +72,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func reconcile(summonIfWrong: Bool) {
         let trusted = AXIsProcessTrusted()
         let display = pinnedUUID.flatMap { DisplayInfo.resolve(uuid: $0) }
+        let setupState = resolveAndPersistSetupState(trusted: trusted, pinned: display)
 
-        guard GuardReconciliation.eligibility(
-            isTrusted: trusted,
-            hasPinnedDisplay: display != nil
-        ) == .start, let display else {
+        guard setupState.isDockControlEligible, let display else {
             // 權限被撤銷 → 自動停止攔截;螢幕不在 → 停止並等使用者重新選擇
             stopGuarding()
             return
@@ -121,6 +135,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(disabledItem(statusText(trusted: trusted, pinned: pinned)))
         menu.addItem(.separator())
 
+        let setupState = resolveAndPersistSetupState(trusted: trusted, pinned: pinned)
+        if setupState.shouldPresentOnboarding {
+            let setup = NSMenuItem(
+                title: AppStrings.continueSetup,
+                action: #selector(openSetupWindow),
+                keyEquivalent: ""
+            )
+            setup.target = self
+            menu.addItem(setup)
+            menu.addItem(.separator())
+        }
+
         menu.addItem(disabledItem(AppStrings.pinDockTo))
         for display in displays {
             let title = display.isMain ? display.name + AppStrings.mainDisplaySuffix : display.name
@@ -142,7 +168,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             keyEquivalent: ""
         )
         summon.target = self
-        summon.isEnabled = trusted && pinned != nil
+        summon.isEnabled = setupState.isDockControlEligible
         menu.addItem(summon)
         menu.addItem(.separator())
 
@@ -195,12 +221,92 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
             AXIsProcessTrustedWithOptions(options)
         }
+        refreshSetupWindow()
         reconcile(summonIfWrong: true)
     }
 
     @objc private func unpinClicked() {
         pinnedUUID = nil
+        refreshSetupWindow()
         reconcile(summonIfWrong: false)
+    }
+
+    @objc private func openSetupWindow() {
+        let controller: SetupWindowController
+        if let setupWindowController {
+            controller = setupWindowController
+        } else {
+            controller = SetupWindowController()
+            controller.onDisplaySelected = { [weak self] uuid in
+                self?.pinnedUUID = uuid
+                self?.refreshSetupWindow()
+                self?.reconcile(summonIfWrong: false)
+            }
+            controller.onRequestAccessibility = { [weak self] in
+                self?.requestAccessibilityPermission()
+            }
+            controller.onOpenAccessibilitySettings = { [weak self] in
+                self?.openAccessibilitySettings()
+            }
+            controller.onOpenDesktopSettings = { [weak self] in
+                self?.openDesktopSettings()
+            }
+            controller.onClose = { [weak self] in
+                self?.setupRefreshTimer?.invalidate()
+                self?.setupRefreshTimer = nil
+                self?.reconcile(summonIfWrong: false)
+            }
+            setupWindowController = controller
+        }
+
+        controller.showWindow(nil)
+        refreshSetupWindow()
+        NSApp.activate(ignoringOtherApps: true)
+        setupRefreshTimer?.invalidate()
+        setupRefreshTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.refreshSetupWindow()
+            self?.reconcile(summonIfWrong: false)
+        }
+    }
+
+    private func refreshSetupWindow() {
+        guard let controller = setupWindowController, controller.window?.isVisible == true else { return }
+        let displays = DisplayInfo.active()
+        let trusted = AXIsProcessTrusted()
+        let pinned = pinnedUUID.flatMap { uuid in displays.first { $0.uuid == uuid } }
+        controller.update(
+            displays: displays,
+            pinnedUUID: pinnedUUID,
+            isAccessibilityTrusted: trusted,
+            state: resolveAndPersistSetupState(trusted: trusted, pinned: pinned)
+        )
+    }
+
+    private func resolveAndPersistSetupState(trusted: Bool, pinned: DisplayInfo?) -> SetupState {
+        var snapshot = SetupSnapshot(
+            hasCompletedSetup: hasCompletedSetup,
+            hasPinnedDisplay: pinnedUUID != nil,
+            isPinnedDisplayAvailable: pinned != nil,
+            isAccessibilityTrusted: trusted
+        )
+        var state = SetupState.resolve(snapshot)
+        if state.shouldRecordCompletion {
+            hasCompletedSetup = true
+            snapshot = SetupSnapshot(
+                hasCompletedSetup: true,
+                hasPinnedDisplay: snapshot.hasPinnedDisplay,
+                isPinnedDisplayAvailable: snapshot.isPinnedDisplayAvailable,
+                isAccessibilityTrusted: snapshot.isAccessibilityTrusted
+            )
+            state = SetupState.resolve(snapshot)
+        }
+        return state
+    }
+
+    private func requestAccessibilityPermission() {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
+        refreshSetupWindow()
     }
 
     @objc private func summonClicked() {
@@ -210,6 +316,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func openAccessibilitySettings() {
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
+        NSWorkspace.shared.open(url)
+    }
+
+    private func openDesktopSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.Desktop-Settings.extension") else {
+            return
+        }
         NSWorkspace.shared.open(url)
     }
 
