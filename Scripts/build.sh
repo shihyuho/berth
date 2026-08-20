@@ -58,11 +58,28 @@ swift Scripts/check_localizations.swift bundle "$APP"
 CHECK_ROOT="$(mktemp -d "$DIST/localization-check.XXXXXX")"
 trap 'rm -rf "$CHECK_ROOT"' EXIT
 CHECK_APP="$CHECK_ROOT/Berth.app"
-CHECK_EXECUTABLE="BerthLocalizationCheck"
+LOCALIZATION_CHECK_EXECUTABLE="BerthLocalizationCheck"
+EFFECTIVE_LANGUAGE_CHECK_EXECUTABLE="BerthEffectiveLanguageCheck"
 cp -R "$APP" "$CHECK_APP"
-swiftc Scripts/check_localizations.swift -o "$CHECK_APP/Contents/MacOS/$CHECK_EXECUTABLE"
-/usr/libexec/PlistBuddy -c "Set :CFBundleExecutable $CHECK_EXECUTABLE" "$CHECK_APP/Contents/Info.plist"
-"$CHECK_APP/Contents/MacOS/$CHECK_EXECUTABLE" -AppleLanguages '(fr)' --main-bundle-fallback
+swiftc Scripts/check_localizations.swift -o "$CHECK_APP/Contents/MacOS/$LOCALIZATION_CHECK_EXECUTABLE"
+cp Scripts/check_effective_language.swift "$CHECK_ROOT/main.swift"
+swiftc \
+    "$CHECK_ROOT/main.swift" \
+    Sources/Berth/AppLanguage.swift \
+    Sources/Berth/AppStrings.swift \
+    -o "$CHECK_APP/Contents/MacOS/$EFFECTIVE_LANGUAGE_CHECK_EXECUTABLE"
+/usr/libexec/PlistBuddy \
+    -c "Set :CFBundleExecutable $EFFECTIVE_LANGUAGE_CHECK_EXECUTABLE" \
+    "$CHECK_APP/Contents/Info.plist"
+"$CHECK_APP/Contents/MacOS/$EFFECTIVE_LANGUAGE_CHECK_EXECUTABLE" \
+    -AppleLanguages '(en)' en 'Currently using: English' Quit
+"$CHECK_APP/Contents/MacOS/$EFFECTIVE_LANGUAGE_CHECK_EXECUTABLE" \
+    -AppleLanguages '(zh-TW)' zh-TW '目前使用：繁體中文（台灣）' '結束'
+/usr/libexec/PlistBuddy \
+    -c "Set :CFBundleExecutable $LOCALIZATION_CHECK_EXECUTABLE" \
+    "$CHECK_APP/Contents/Info.plist"
+"$CHECK_APP/Contents/MacOS/$LOCALIZATION_CHECK_EXECUTABLE" \
+    -AppleLanguages '(fr)' --main-bundle-fallback
 rm -rf "$CHECK_ROOT"
 trap - EXIT
 

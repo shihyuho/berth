@@ -50,6 +50,48 @@
         "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "「輔助使用」權限已被撤銷。請開啟「系統設定」以恢復 Dock 控制。" } }
       }
     },
+    "settings.appLanguage.effective" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Currently using: %@" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "目前使用：%@" } }
+      }
+    },
+    "settings.appLanguage.instructions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In Language & Region, add or select Berth under Applications, choose a language, then reopen Berth." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "請在「語言與地區」的「應用程式」區塊加入或選擇 Berth、選取語言，然後重新開啟 Berth。" } }
+      }
+    },
+    "settings.appLanguage.label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Language" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "App 語言" } }
+      }
+    },
+    "settings.appLanguage.openError" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn’t open System Settings. Open System Settings → General → Language & Region → Applications." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "無法開啟「系統設定」。請前往「系統設定」→「一般」→「語言與地區」→「應用程式」。" } }
+      }
+    },
+    "settings.appLanguage.openSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Language & Region…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "開啟「語言與地區」…" } }
+      }
+    },
+    "settings.general.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "一般" } }
+      }
+    },
     "settings.launchAtLogin.disabled" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -76,13 +118,6 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Approval is required in System Settings." } },
         "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "需要在「系統設定」中核准。" } }
-      }
-    },
-    "settings.launchAtLogin.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at Login" } },
-        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "登入時自動啟動" } }
       }
     },
     "settings.launchAtLogin.unavailable" : {

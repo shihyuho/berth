@@ -39,7 +39,12 @@ enum AppStrings {
         case settingsPinnedDisplayMissing = "settings.pinnedDisplay.missing"
         case settingsPinnedDisplayUnavailableSelection = "settings.pinnedDisplay.unavailableSelection"
         case settingsAccessibilityRecovery = "settings.accessibility.recovery"
-        case settingsLaunchAtLoginTitle = "settings.launchAtLogin.title"
+        case settingsGeneralTitle = "settings.general.title"
+        case settingsAppLanguageLabel = "settings.appLanguage.label"
+        case settingsAppLanguageEffective = "settings.appLanguage.effective"
+        case settingsAppLanguageInstructions = "settings.appLanguage.instructions"
+        case settingsOpenLanguageAndRegion = "settings.appLanguage.openSettings"
+        case settingsOpenLanguageAndRegionError = "settings.appLanguage.openError"
         case settingsLaunchAtLoginEnabled = "settings.launchAtLogin.enabled"
         case settingsLaunchAtLoginDisabled = "settings.launchAtLogin.disabled"
         case settingsLaunchAtLoginRequiresApproval = "settings.launchAtLogin.requiresApproval"
@@ -88,7 +93,17 @@ enum AppStrings {
         localized(.settingsPinnedDisplayUnavailableSelection)
     }
     static var settingsAccessibilityRecovery: String { localized(.settingsAccessibilityRecovery) }
-    static var settingsLaunchAtLoginTitle: String { localized(.settingsLaunchAtLoginTitle) }
+    static var settingsGeneralTitle: String { localized(.settingsGeneralTitle) }
+    static var settingsAppLanguageLabel: String { localized(.settingsAppLanguageLabel) }
+    static var settingsAppLanguageInstructions: String {
+        localized(.settingsAppLanguageInstructions)
+    }
+    static var settingsOpenLanguageAndRegion: String {
+        localized(.settingsOpenLanguageAndRegion)
+    }
+    static var settingsOpenLanguageAndRegionError: String {
+        localized(.settingsOpenLanguageAndRegionError)
+    }
     static var settingsLaunchAtLoginEnabled: String { localized(.settingsLaunchAtLoginEnabled) }
     static var settingsLaunchAtLoginDisabled: String { localized(.settingsLaunchAtLoginDisabled) }
     static var settingsLaunchAtLoginRequiresApproval: String {
@@ -121,6 +136,14 @@ enum AppStrings {
             format: localized(.settingsVersion),
             locale: Locale.current,
             arguments: [version]
+        )
+    }
+
+    static func settingsEffectiveAppLanguage(effectiveLanguageName: String) -> String {
+        String(
+            format: localized(.settingsAppLanguageEffective),
+            locale: Locale.current,
+            arguments: [effectiveLanguageName]
         )
     }
 
