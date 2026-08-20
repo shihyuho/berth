@@ -8,6 +8,111 @@
         "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "繼續設定…" } }
       }
     },
+    "menu.settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "設定…" } }
+      }
+    },
+    "settings.about.openProject" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Project on GitHub" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "在 GitHub 查看專案" } }
+      }
+    },
+    "settings.about.projectDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth keeps the macOS Dock on the display you choose as its persistent berth." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 會將 macOS Dock 保持在你選擇的固定螢幕上。" } }
+      }
+    },
+    "settings.about.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "關於" } }
+      }
+    },
+    "settings.about.version" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@" } }
+      }
+    },
+    "settings.accessibility.recovery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Accessibility permission was revoked. Open System Settings to restore Dock Control." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "「輔助使用」權限已被撤銷。請開啟「系統設定」以恢復 Dock 控制。" } }
+      }
+    },
+    "settings.launchAtLogin.disabled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth will not launch at login." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 不會在登入時自動啟動。" } }
+      }
+    },
+    "settings.launchAtLogin.enabled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth is registered to launch at login." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 已登錄為登入時自動啟動。" } }
+      }
+    },
+    "settings.launchAtLogin.openSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Login Items Settings…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "開啟「登入項目」設定…" } }
+      }
+    },
+    "settings.launchAtLogin.requiresApproval" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Approval is required in System Settings." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "需要在「系統設定」中核准。" } }
+      }
+    },
+    "settings.launchAtLogin.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at Login" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "登入時自動啟動" } }
+      }
+    },
+    "settings.launchAtLogin.unavailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at Login is available in the packaged app." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "「登入時自動啟動」僅適用於已封裝的 App。" } }
+      }
+    },
+    "settings.pinnedDisplay.missing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The Pinned Display is unavailable. Connect it or choose another display." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "固定螢幕目前無法使用。請連接該螢幕或選擇其他螢幕。" } }
+      }
+    },
+    "settings.pinnedDisplay.unavailableSelection" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pinned Display (Unavailable)" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "固定螢幕（目前無法使用）" } }
+      }
+    },
+    "settings.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth Settings" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 設定" } }
+      }
+    },
     "setup.accessibility.body" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -8,7 +8,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var reconcileTimer: Timer?
     private var dockWatchTimer: Timer?
     private var setupRefreshTimer: Timer?
+    private var settingsRefreshTimer: Timer?
     private var setupWindowController: SetupWindowController?
+    private var settingsWindowController: SettingsWindowController?
 
     private static let pinnedKey = "PinnedDisplayUUID"
     private static let setupCompletedKey = "HasCompletedSetup"
@@ -44,6 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             object: nil, queue: .main
         ) { [weak self] _ in
             self?.refreshSetupWindow()
+            self?.refreshSettingsWindow()
             // 立即刷新幾何,避免 tap 拿舊的螢幕邊界 clamp 游標
             self?.reconcile(summonIfWrong: false)
             // 等系統把螢幕配置穩定下來再召喚 Dock
@@ -55,6 +58,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // 定期對帳:涵蓋權限被授予/撤銷、固定的螢幕消失又出現等情況
         reconcileTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
             self?.refreshSetupWindow()
+            self?.refreshSettingsWindow()
             self?.reconcile(summonIfWrong: false)
         }
 
@@ -172,24 +176,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(summon)
         menu.addItem(.separator())
 
-        if !trusted {
-            let openSettings = NSMenuItem(
-                title: AppStrings.openAccessibilitySettings,
-                action: #selector(openAccessibilitySettings), keyEquivalent: ""
-            )
-            openSettings.target = self
-            menu.addItem(openSettings)
-        }
-        if Bundle.main.bundleURL.pathExtension == "app" {
-            let login = NSMenuItem(
-                title: AppStrings.launchAtLogin,
-                action: #selector(toggleLoginItem),
-                keyEquivalent: ""
-            )
-            login.target = self
-            login.state = SMAppService.mainApp.status == .enabled ? .on : .off
-            menu.addItem(login)
-        }
+        let settings = NSMenuItem(
+            title: AppStrings.settings,
+            action: #selector(openSettingsWindow),
+            keyEquivalent: ","
+        )
+        settings.target = self
+        menu.addItem(settings)
         menu.addItem(.separator())
 
         let quit = NSMenuItem(title: AppStrings.quit, action: #selector(quitClicked), keyEquivalent: "q")
@@ -222,12 +215,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             AXIsProcessTrustedWithOptions(options)
         }
         refreshSetupWindow()
+        refreshSettingsWindow()
         reconcile(summonIfWrong: true)
     }
 
     @objc private func unpinClicked() {
         pinnedUUID = nil
         refreshSetupWindow()
+        refreshSettingsWindow()
         reconcile(summonIfWrong: false)
     }
 
@@ -282,6 +277,76 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         )
     }
 
+    @objc private func openSettingsWindow() {
+        let controller: SettingsWindowController
+        if let settingsWindowController {
+            controller = settingsWindowController
+        } else {
+            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+                ?? "—"
+            controller = SettingsWindowController(version: version)
+            controller.onDisplaySelected = { [weak self] uuid in
+                self?.pinnedUUID = uuid
+                self?.refreshSetupWindow()
+                self?.refreshSettingsWindow()
+                self?.reconcile(summonIfWrong: false)
+            }
+            controller.onRequestAccessibility = { [weak self] in
+                self?.requestAccessibilityPermission()
+            }
+            controller.onOpenAccessibilitySettings = { [weak self] in
+                self?.openAccessibilitySettings()
+            }
+            controller.onToggleLaunchAtLogin = { [weak self] in
+                self?.toggleLoginItem()
+            }
+            controller.onOpenLoginItemsSettings = { [weak self] in
+                self?.openLoginItemsSettings()
+            }
+            controller.onOpenProject = { [weak self] in
+                self?.openProject()
+            }
+            controller.onClose = { [weak self] in
+                self?.settingsRefreshTimer?.invalidate()
+                self?.settingsRefreshTimer = nil
+            }
+            settingsWindowController = controller
+        }
+
+        controller.showWindow(nil)
+        controller.window?.deminiaturize(nil)
+        controller.window?.makeKeyAndOrderFront(nil)
+        refreshSettingsWindow()
+        NSApp.activate(ignoringOtherApps: true)
+        settingsRefreshTimer?.invalidate()
+        settingsRefreshTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+            self?.refreshSettingsWindow()
+            self?.reconcile(summonIfWrong: false)
+        }
+    }
+
+    private func refreshSettingsWindow() {
+        guard let controller = settingsWindowController, controller.window?.isVisible == true else { return }
+        let displays = DisplayInfo.active()
+        let trusted = AXIsProcessTrusted()
+        let pinned = pinnedUUID.flatMap { uuid in displays.first { $0.uuid == uuid } }
+        _ = resolveAndPersistSetupState(trusted: trusted, pinned: pinned)
+        let setupSnapshot = SetupSnapshot(
+            hasCompletedSetup: hasCompletedSetup,
+            hasPinnedDisplay: pinnedUUID != nil,
+            isPinnedDisplayAvailable: pinned != nil,
+            isAccessibilityTrusted: trusted
+        )
+        controller.update(
+            displays: displays,
+            pinnedUUID: pinnedUUID,
+            presentation: SettingsPresentation.resolve(
+                setupSnapshot: setupSnapshot,
+                launchAtLoginStatus: launchAtLoginStatus()
+            )
+        )
+    }
+
     private func resolveAndPersistSetupState(trusted: Bool, pinned: DisplayInfo?) -> SetupState {
         var snapshot = SetupSnapshot(
             hasCompletedSetup: hasCompletedSetup,
@@ -307,6 +372,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
         refreshSetupWindow()
+        refreshSettingsWindow()
     }
 
     @objc private func summonClicked() {
@@ -326,6 +392,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSWorkspace.shared.open(url)
     }
 
+    private func openLoginItemsSettings() {
+        guard let url = URL(
+            string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension"
+        ) else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    private func openProject() {
+        guard let url = URL(string: "https://github.com/shihyuho/berth") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    private func launchAtLoginStatus() -> SettingsPresentation.LaunchAtLoginStatus {
+        guard Bundle.main.bundleURL.pathExtension == "app" else { return .unavailable }
+        switch SMAppService.mainApp.status {
+        case .enabled:
+            return .enabled
+        case .notRegistered:
+            return .disabled
+        case .requiresApproval:
+            return .requiresApproval
+        case .notFound:
+            return .unavailable
+        @unknown default:
+            return .unavailable
+        }
+    }
+
     @objc private func toggleLoginItem() {
         do {
             if SMAppService.mainApp.status == .enabled {
@@ -336,6 +430,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         } catch {
             NSLog("切換登入啟動失敗:\(error)")
         }
+        refreshSettingsWindow()
     }
 
     @objc private func quitClicked() {

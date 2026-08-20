@@ -8,6 +8,7 @@ enum AppStrings {
         case menuBringDockBack = "menu.bringDockBack"
         case menuOpenAccessibilitySettings = "menu.openAccessibilitySettings"
         case menuContinueSetup = "menu.continueSetup"
+        case menuSettings = "menu.settings"
         case menuLaunchAtLogin = "menu.launchAtLogin"
         case menuQuit = "menu.quit"
         case statusUnpinned = "status.unpinned"
@@ -34,6 +35,20 @@ enum AppStrings {
         case setupNeedsAccessibility = "setup.status.needsAccessibility"
         case setupPinnedDisplayMissing = "setup.status.pinnedDisplayMissing"
         case setupClose = "setup.close"
+        case settingsTitle = "settings.title"
+        case settingsPinnedDisplayMissing = "settings.pinnedDisplay.missing"
+        case settingsPinnedDisplayUnavailableSelection = "settings.pinnedDisplay.unavailableSelection"
+        case settingsAccessibilityRecovery = "settings.accessibility.recovery"
+        case settingsLaunchAtLoginTitle = "settings.launchAtLogin.title"
+        case settingsLaunchAtLoginEnabled = "settings.launchAtLogin.enabled"
+        case settingsLaunchAtLoginDisabled = "settings.launchAtLogin.disabled"
+        case settingsLaunchAtLoginRequiresApproval = "settings.launchAtLogin.requiresApproval"
+        case settingsLaunchAtLoginUnavailable = "settings.launchAtLogin.unavailable"
+        case settingsOpenLoginItemsSettings = "settings.launchAtLogin.openSettings"
+        case settingsAboutTitle = "settings.about.title"
+        case settingsVersion = "settings.about.version"
+        case settingsProjectDescription = "settings.about.projectDescription"
+        case settingsOpenProject = "settings.about.openProject"
     }
 
     static var pinDockTo: String { localized(.menuPinDockTo) }
@@ -42,6 +57,7 @@ enum AppStrings {
     static var bringDockBack: String { localized(.menuBringDockBack) }
     static var openAccessibilitySettings: String { localized(.menuOpenAccessibilitySettings) }
     static var continueSetup: String { localized(.menuContinueSetup) }
+    static var settings: String { localized(.menuSettings) }
     static var launchAtLogin: String { localized(.menuLaunchAtLogin) }
     static var quit: String { localized(.menuQuit) }
     static var unpinnedStatus: String { localized(.statusUnpinned) }
@@ -66,6 +82,23 @@ enum AppStrings {
     static var setupNeedsAccessibility: String { localized(.setupNeedsAccessibility) }
     static var setupPinnedDisplayMissing: String { localized(.setupPinnedDisplayMissing) }
     static var setupClose: String { localized(.setupClose) }
+    static var settingsTitle: String { localized(.settingsTitle) }
+    static var settingsPinnedDisplayMissing: String { localized(.settingsPinnedDisplayMissing) }
+    static var settingsPinnedDisplayUnavailableSelection: String {
+        localized(.settingsPinnedDisplayUnavailableSelection)
+    }
+    static var settingsAccessibilityRecovery: String { localized(.settingsAccessibilityRecovery) }
+    static var settingsLaunchAtLoginTitle: String { localized(.settingsLaunchAtLoginTitle) }
+    static var settingsLaunchAtLoginEnabled: String { localized(.settingsLaunchAtLoginEnabled) }
+    static var settingsLaunchAtLoginDisabled: String { localized(.settingsLaunchAtLoginDisabled) }
+    static var settingsLaunchAtLoginRequiresApproval: String {
+        localized(.settingsLaunchAtLoginRequiresApproval)
+    }
+    static var settingsLaunchAtLoginUnavailable: String { localized(.settingsLaunchAtLoginUnavailable) }
+    static var settingsOpenLoginItemsSettings: String { localized(.settingsOpenLoginItemsSettings) }
+    static var settingsAboutTitle: String { localized(.settingsAboutTitle) }
+    static var settingsProjectDescription: String { localized(.settingsProjectDescription) }
+    static var settingsOpenProject: String { localized(.settingsOpenProject) }
 
     static func pinnedStatus(displayName: String) -> String {
         String(
@@ -80,6 +113,14 @@ enum AppStrings {
             format: localized(.displayFallbackName),
             locale: Locale.current,
             arguments: [displayID]
+        )
+    }
+
+    static func settingsVersion(version: String) -> String {
+        String(
+            format: localized(.settingsVersion),
+            locale: Locale.current,
+            arguments: [version]
         )
     }
 
