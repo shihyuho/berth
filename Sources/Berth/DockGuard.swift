@@ -20,14 +20,7 @@ final class DockGuard {
     private var displayBounds: [DisplayBounds] = []
 
     func refreshDisplays() {
-        displayBounds = DisplayInfo.activeDisplayIDs()
-            .map {
-                DisplayBounds(
-                    id: $0,
-                    bounds: CGDisplayBounds($0),
-                    isMirrored: CGDisplayMirrorsDisplay($0) != 0
-                )
-            }
+        displayBounds = DisplayInfo.activeDisplayBounds()
     }
 
     @discardableResult
