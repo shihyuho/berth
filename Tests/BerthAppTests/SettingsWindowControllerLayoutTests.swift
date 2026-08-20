@@ -1,4 +1,5 @@
 import AppKit
+import BerthCore
 import XCTest
 
 @testable import Berth
@@ -96,14 +97,16 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
             let controller = makeController(languageContent: languageContent)
             let sizeBeforeError = try XCTUnwrap(controller.window).frame.size
 
+            populateLongestStatusContent(in: controller)
             controller.showLanguageSettingsError()
             controller.window?.contentView?.layoutSubtreeIfNeeded()
 
             let window = try XCTUnwrap(controller.window)
             XCTAssertEqual(window.frame.size, sizeBeforeError)
-            XCTAssertEqual(window.frame.width, 520)
 
             let contentView = try XCTUnwrap(window.contentView)
+            XCTAssertEqual(contentView.bounds.width, 520)
+            XCTAssertEqual(contentView.bounds.height, 640)
             let sections = contentView.descendants(of: NSBox.self)
             XCTAssertEqual(sections.count, 4)
             for section in sections {
@@ -113,7 +116,16 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
                     ),
                     "Section \(section.title) extends beyond the Settings content view"
                 )
+                let sectionContent = try XCTUnwrap(section.contentView)
+                let stack = try XCTUnwrap(
+                    sectionContent.subviews.compactMap { $0 as? NSStackView }.first
+                )
+                assertVisibleArrangedSubviewsFitWithoutOverlap(in: stack)
             }
+
+            let visibleWrappingLabels = contentView.descendants(of: NSTextField.self)
+                .filter { !$0.isHidden && $0.cell?.wraps == true }
+            XCTAssertTrue(visibleWrappingLabels.allSatisfy { !$0.stringValue.isEmpty })
 
             let errorLabel = try XCTUnwrap(
                 contentView.descendants(of: NSTextField.self).first {
@@ -127,6 +139,61 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
                 errorLabel.alignmentRect(forFrame: errorLabel.frame).width,
                 errorContainer.bounds.width + 0.5
             )
+        }
+    }
+
+    private func populateLongestStatusContent(in controller: SettingsWindowController) {
+        let missingPinnedUUID = "missing-pinned-display"
+        controller.update(
+            displays: [
+                DisplayInfo(
+                    id: 1,
+                    uuid: "available-display",
+                    name: "A representative connected display with a long localized name",
+                    isMain: true
+                ),
+            ],
+            pinnedUUID: missingPinnedUUID,
+            presentation: SettingsPresentation.resolve(
+                setupSnapshot: SetupSnapshot(
+                    hasCompletedSetup: true,
+                    hasPinnedDisplay: true,
+                    isPinnedDisplayAvailable: false,
+                    isAccessibilityTrusted: false
+                ),
+                launchAtLoginStatus: .requiresApproval
+            )
+        )
+    }
+
+    private func assertVisibleArrangedSubviewsFitWithoutOverlap(
+        in stack: NSStackView,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        stack.layoutSubtreeIfNeeded()
+        let visibleSubviews = stack.arrangedSubviews.filter { !$0.isHidden }
+
+        for view in visibleSubviews {
+            XCTAssertTrue(
+                stack.bounds.insetBy(dx: -0.5, dy: -0.5).contains(
+                    view.alignmentRect(forFrame: view.frame)
+                ),
+                "Visible arranged subview extends beyond its section stack",
+                file: file,
+                line: line
+            )
+        }
+
+        for (index, view) in visibleSubviews.enumerated() {
+            for laterView in visibleSubviews.dropFirst(index + 1) {
+                XCTAssertFalse(
+                    view.frame.intersects(laterView.frame),
+                    "Visible arranged subviews overlap",
+                    file: file,
+                    line: line
+                )
+            }
         }
     }
 

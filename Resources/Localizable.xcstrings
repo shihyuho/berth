@@ -120,13 +120,6 @@
         "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "需要在「系統設定」中核准。" } }
       }
     },
-    "settings.launchAtLogin.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at Login" } },
-        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "登入時自動啟動" } }
-      }
-    },
     "settings.launchAtLogin.unavailable" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -45,7 +45,6 @@ enum AppStrings {
         case settingsAppLanguageInstructions = "settings.appLanguage.instructions"
         case settingsOpenLanguageAndRegion = "settings.appLanguage.openSettings"
         case settingsOpenLanguageAndRegionError = "settings.appLanguage.openError"
-        case settingsLaunchAtLoginTitle = "settings.launchAtLogin.title"
         case settingsLaunchAtLoginEnabled = "settings.launchAtLogin.enabled"
         case settingsLaunchAtLoginDisabled = "settings.launchAtLogin.disabled"
         case settingsLaunchAtLoginRequiresApproval = "settings.launchAtLogin.requiresApproval"
@@ -105,7 +104,6 @@ enum AppStrings {
     static var settingsOpenLanguageAndRegionError: String {
         localized(.settingsOpenLanguageAndRegionError)
     }
-    static var settingsLaunchAtLoginTitle: String { localized(.settingsLaunchAtLoginTitle) }
     static var settingsLaunchAtLoginEnabled: String { localized(.settingsLaunchAtLoginEnabled) }
     static var settingsLaunchAtLoginDisabled: String { localized(.settingsLaunchAtLoginDisabled) }
     static var settingsLaunchAtLoginRequiresApproval: String {

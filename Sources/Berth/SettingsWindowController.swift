@@ -174,12 +174,12 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         let root = NSStackView()
         root.orientation = .vertical
         root.alignment = .leading
-        root.spacing = 14
+        root.spacing = 10
         root.translatesAutoresizingMaskIntoConstraints = false
 
         displayPopup.target = self
         displayPopup.action = #selector(displaySelectionChanged)
-        displayPopup.widthAnchor.constraint(greaterThanOrEqualToConstant: 340).isActive = true
+        displayPopup.widthAnchor.constraint(equalToConstant: 340).isActive = true
         let displaySection = section(
             title: AppStrings.setupPinnedDisplayTitle,
             controls: [displayPopup, displayStatus]
