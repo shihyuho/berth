@@ -18,6 +18,11 @@ let package = Package(
             name: "BerthCoreTests",
             dependencies: ["BerthCore"],
             path: "Tests/BerthCoreTests"
+        ),
+        .testTarget(
+            name: "BerthAppTests",
+            dependencies: ["Berth"],
+            path: "Tests/BerthAppTests"
         )
     ]
 )
