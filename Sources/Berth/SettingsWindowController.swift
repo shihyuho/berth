@@ -17,21 +17,39 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     private let launchAtLoginToggle = NSButton(checkboxWithTitle: AppStrings.launchAtLogin, target: nil, action: nil)
     private let launchAtLoginStatus = NSTextField(wrappingLabelWithString: "")
     private let openLoginItemsSettingsButton = NSButton()
+    private let languageSettingsError: NSTextField
+    private let systemSettingsOpener: SystemSettingsOpener
     private var accessibilityAction: SettingsPresentation.AccessibilityAction = .none
 
-    init(version: String) {
+    convenience init(version: String) {
+        self.init(
+            version: version,
+            languageContent: .localized(effectiveLanguageName: AppLanguage.effectiveName()),
+            systemSettingsOpener: SystemSettingsOpener()
+        )
+    }
+
+    init(
+        version: String,
+        languageContent: AppLanguageSettingsContent,
+        systemSettingsOpener: SystemSettingsOpener
+    ) {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 500),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 640),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
         )
+        languageSettingsError = NSTextField(
+            wrappingLabelWithString: languageContent.openError
+        )
+        self.systemSettingsOpener = systemSettingsOpener
         window.title = AppStrings.settingsTitle
         window.isReleasedWhenClosed = false
         window.center()
         super.init(window: window)
         window.delegate = self
-        buildContent(version: version)
+        buildContent(version: version, languageContent: languageContent)
     }
 
     @available(*, unavailable)
@@ -51,6 +69,10 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         onClose?()
+    }
+
+    func showLanguageSettingsError() {
+        languageSettingsError.isHidden = false
     }
 
     private func updateDisplay(
@@ -143,7 +165,10 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         launchAtLoginStatus.textColor = .secondaryLabelColor
     }
 
-    private func buildContent(version: String) {
+    private func buildContent(
+        version: String,
+        languageContent: AppLanguageSettingsContent
+    ) {
         guard let contentView = window?.contentView else { return }
 
         let root = NSStackView()
@@ -174,11 +199,43 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         openLoginItemsSettingsButton.title = AppStrings.settingsOpenLoginItemsSettings
         openLoginItemsSettingsButton.target = self
         openLoginItemsSettingsButton.action = #selector(openLoginItemsSettings)
-        let launchAtLoginSection = section(
-            title: AppStrings.settingsLaunchAtLoginTitle,
-            controls: [launchAtLoginToggle, launchAtLoginStatus, openLoginItemsSettingsButton]
+        let languageLabel = NSTextField(labelWithString: languageContent.languageLabel)
+        languageLabel.font = .systemFont(
+            ofSize: NSFont.systemFontSize,
+            weight: .semibold
         )
-        root.addArrangedSubview(launchAtLoginSection)
+        let effectiveLanguage = wrappingLabel(languageContent.effectiveLanguage)
+        effectiveLanguage.identifier = NSUserInterfaceItemIdentifier(
+            "settings.appLanguage.effective"
+        )
+        let languageInstructions = wrappingLabel(languageContent.instructions)
+        let openLanguageSettingsButton = NSButton(
+            title: languageContent.openSettings,
+            target: self,
+            action: #selector(openLanguageSettings)
+        )
+        openLanguageSettingsButton.identifier = NSUserInterfaceItemIdentifier(
+            "settings.appLanguage.openSettings"
+        )
+        languageSettingsError.identifier = NSUserInterfaceItemIdentifier(
+            "settings.appLanguage.openError"
+        )
+        languageSettingsError.textColor = .systemRed
+        languageSettingsError.isHidden = true
+        let generalSection = section(
+            title: languageContent.generalTitle,
+            controls: [
+                languageLabel,
+                effectiveLanguage,
+                languageInstructions,
+                openLanguageSettingsButton,
+                languageSettingsError,
+                launchAtLoginToggle,
+                launchAtLoginStatus,
+                openLoginItemsSettingsButton,
+            ]
+        )
+        root.addArrangedSubview(generalSection)
 
         let versionLabel = NSTextField(labelWithString: AppStrings.settingsVersion(version: version))
         versionLabel.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .semibold)
@@ -202,7 +259,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             root.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -20),
             displaySection.widthAnchor.constraint(equalTo: root.widthAnchor),
             accessibilitySection.widthAnchor.constraint(equalTo: root.widthAnchor),
-            launchAtLoginSection.widthAnchor.constraint(equalTo: root.widthAnchor),
+            generalSection.widthAnchor.constraint(equalTo: root.widthAnchor),
             aboutSection.widthAnchor.constraint(equalTo: root.widthAnchor),
         ])
     }
@@ -259,6 +316,16 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
     @objc private func toggleLaunchAtLogin() {
         onToggleLaunchAtLogin?()
+    }
+
+    @objc private func openLanguageSettings() {
+        languageSettingsError.isHidden = true
+        systemSettingsOpener.openLanguageAndRegion { [weak self] succeeded in
+            guard !succeeded else { return }
+            DispatchQueue.main.async {
+                self?.showLanguageSettingsError()
+            }
+        }
     }
 
     @objc private func openLoginItemsSettings() {

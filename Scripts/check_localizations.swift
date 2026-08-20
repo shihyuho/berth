@@ -40,6 +40,12 @@ private let requiredKeys: Set<String> = [
     "settings.pinnedDisplay.missing",
     "settings.pinnedDisplay.unavailableSelection",
     "settings.accessibility.recovery",
+    "settings.general.title",
+    "settings.appLanguage.label",
+    "settings.appLanguage.effective",
+    "settings.appLanguage.instructions",
+    "settings.appLanguage.openSettings",
+    "settings.appLanguage.openError",
     "settings.launchAtLogin.title",
     "settings.launchAtLogin.enabled",
     "settings.launchAtLogin.disabled",
@@ -157,6 +163,12 @@ private let expectedValues: [String: [String: String]] = [
         "settings.pinnedDisplay.missing": "The Pinned Display is unavailable. Connect it or choose another display.",
         "settings.pinnedDisplay.unavailableSelection": "Pinned Display (Unavailable)",
         "settings.accessibility.recovery": "Accessibility permission was revoked. Open System Settings to restore Dock Control.",
+        "settings.general.title": "General",
+        "settings.appLanguage.label": "App Language",
+        "settings.appLanguage.effective": "Currently using: %@",
+        "settings.appLanguage.instructions": "In Language & Region, add or select Berth under Applications, choose a language, then reopen Berth.",
+        "settings.appLanguage.openSettings": "Open Language & Region…",
+        "settings.appLanguage.openError": "Couldn’t open System Settings. Open System Settings → General → Language & Region → Applications.",
         "settings.launchAtLogin.title": "Launch at Login",
         "settings.launchAtLogin.enabled": "Berth is registered to launch at login.",
         "settings.launchAtLogin.disabled": "Berth will not launch at login.",
@@ -206,6 +218,12 @@ private let expectedValues: [String: [String: String]] = [
         "settings.pinnedDisplay.missing": "固定螢幕目前無法使用。請連接該螢幕或選擇其他螢幕。",
         "settings.pinnedDisplay.unavailableSelection": "固定螢幕（目前無法使用）",
         "settings.accessibility.recovery": "「輔助使用」權限已被撤銷。請開啟「系統設定」以恢復 Dock 控制。",
+        "settings.general.title": "一般",
+        "settings.appLanguage.label": "App 語言",
+        "settings.appLanguage.effective": "目前使用：%@",
+        "settings.appLanguage.instructions": "請在「語言與地區」的「應用程式」區塊加入或選擇 Berth、選取語言，然後重新開啟 Berth。",
+        "settings.appLanguage.openSettings": "開啟「語言與地區」…",
+        "settings.appLanguage.openError": "無法開啟「系統設定」。請前往「系統設定」→「一般」→「語言與地區」→「應用程式」。",
         "settings.launchAtLogin.title": "登入時自動啟動",
         "settings.launchAtLogin.enabled": "Berth 已登錄為登入時自動啟動。",
         "settings.launchAtLogin.disabled": "Berth 不會在登入時自動啟動。",
@@ -278,6 +296,15 @@ private func checkBundle(at path: String) {
     )
     guard englishVersion == "Berth 1.2.3" else {
         fail("formatted English settings version is incorrect")
+    }
+
+    let chineseEffectiveLanguage = String(
+        format: localized("settings.appLanguage.effective", locale: "zh-TW", appBundle: appBundle),
+        locale: Locale(identifier: "zh-TW"),
+        arguments: ["繁體中文（台灣）"]
+    )
+    guard chineseEffectiveLanguage == "目前使用：繁體中文（台灣）" else {
+        fail("formatted zh-TW Effective Language is incorrect")
     }
 
     let chineseDisplay = String(

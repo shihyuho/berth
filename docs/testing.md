@@ -34,6 +34,8 @@ Keep macOS-provided display names unchanged in both languages. Also enable Launc
 
 With the settings window open in each language, verify that selecting **Settings…** again focuses the same window, changing the Pinned Display updates both settings and the menu, and display or Accessibility changes refresh without reopening the window. Exercise both the initial Accessibility grant and revoked-permission recovery routes. Toggle Launch at Login in settings, confirm the reported registration state changes, then restore the original state. Confirm the About section shows the packaged Berth version and opens the project page. No automatic-update control should appear.
 
+In the General section, confirm **App Language** shows the language used by the current Berth process. Open **Language & Region…** with System Settings both closed and already showing another pane. Under **Applications**, set Berth to the other supported language, reopen Berth, and confirm the complete UI and Effective Language agree. Remove the per-app override, reopen Berth, and confirm Berth follows the macOS language preferences again. Exercise this handoff on macOS 13 and the latest supported version. If neither the Language & Region route nor the System Settings fallback can open, confirm Berth shows the localized manual path. The pane deep link is not a documented third-party contract, so record any unverified macOS version as outstanding PR evidence.
+
 ## First-setup verification
 
 Before releasing setup changes, use a disposable user defaults domain or a fresh macOS account and verify:
