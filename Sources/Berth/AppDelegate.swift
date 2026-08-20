@@ -9,11 +9,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var dockWatchTimer: Timer?
     private var setupRefreshTimer: Timer?
     private var settingsRefreshTimer: Timer?
+    private var updateCheckTimer: Timer?
     private var setupWindowController: SetupWindowController?
     private var settingsWindowController: SettingsWindowController?
+    private let latestReleaseClient = LatestReleaseClient()
+    private var updateCheckResult: UpdateCheckResult?
+    private var isCheckingForUpdates = false
 
     private static let pinnedKey = "PinnedDisplayUUID"
     private static let setupCompletedKey = "HasCompletedSetup"
+    private static let automaticUpdateChecksKey = "AutomaticUpdateChecksEnabled"
+    private static let lastUpdateCheckKey = "LastUpdateCheckDate"
+    private static let lastNotifiedUpdateVersionKey = "LastNotifiedUpdateVersion"
+    private static let updateInstructionsURL = URL(
+        string: "https://github.com/shihyuho/berth/blob/main/docs/getting-started.md#update-berth"
+    )!
 
     private var pinnedUUID: String? {
         get { UserDefaults.standard.string(forKey: Self.pinnedKey) }
@@ -29,6 +39,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var hasCompletedSetup: Bool {
         get { UserDefaults.standard.bool(forKey: Self.setupCompletedKey) }
         set { UserDefaults.standard.set(newValue, forKey: Self.setupCompletedKey) }
+    }
+
+    private var automaticUpdateChecksEnabled: Bool {
+        get {
+            UserDefaults.standard.object(forKey: Self.automaticUpdateChecksKey) as? Bool ?? true
+        }
+        set { UserDefaults.standard.set(newValue, forKey: Self.automaticUpdateChecksKey) }
+    }
+
+    private var lastUpdateCheckDate: Date? {
+        get { UserDefaults.standard.object(forKey: Self.lastUpdateCheckKey) as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: Self.lastUpdateCheckKey) }
+    }
+
+    private var lastNotifiedUpdateVersion: String? {
+        get { UserDefaults.standard.string(forKey: Self.lastNotifiedUpdateVersionKey) }
+        set { UserDefaults.standard.set(newValue, forKey: Self.lastNotifiedUpdateVersionKey) }
+    }
+
+    private var currentVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -68,6 +99,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             openSetupWindow()
         }
         reconcile(summonIfWrong: true)
+        performUpdateCheck(trigger: .automatic)
+        updateCheckTimer = Timer.scheduledTimer(withTimeInterval: 60 * 60, repeats: true) {
+            [weak self] _ in
+            self?.performUpdateCheck(trigger: .automatic)
+        }
     }
 
     // MARK: - 狀態對帳
@@ -183,6 +219,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         )
         settings.target = self
         menu.addItem(settings)
+        menu.addItem(.separator())
+
+        let updatePresentation = UpdateCheckPresentation.resolve(
+            isChecking: isCheckingForUpdates,
+            result: updateCheckResult
+        )
+        switch updatePresentation {
+        case let .current(version):
+            menu.addItem(disabledItem(AppStrings.settingsUpdatesCurrent(version: version)))
+        case let .available(version):
+            menu.addItem(disabledItem(AppStrings.updateAvailable(version: version)))
+        case .failed:
+            menu.addItem(disabledItem(AppStrings.settingsUpdatesFailed))
+        case .idle, .checking:
+            break
+        }
+        let checkForUpdates = NSMenuItem(
+            title: isCheckingForUpdates ? AppStrings.settingsUpdatesChecking : AppStrings.checkForUpdates,
+            action: #selector(checkForUpdates),
+            keyEquivalent: ""
+        )
+        checkForUpdates.target = self
+        checkForUpdates.isEnabled = !isCheckingForUpdates
+        menu.addItem(checkForUpdates)
+        if updatePresentation.showsInstructions {
+            let viewInstructions = NSMenuItem(
+                title: AppStrings.viewUpdateInstructions,
+                action: #selector(openUpdateInstructions),
+                keyEquivalent: ""
+            )
+            viewInstructions.target = self
+            menu.addItem(viewInstructions)
+        }
         menu.addItem(.separator())
 
         let quit = NSMenuItem(title: AppStrings.quit, action: #selector(quitClicked), keyEquivalent: "q")
@@ -306,6 +375,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             controller.onOpenProject = { [weak self] in
                 self?.openProject()
             }
+            controller.onToggleAutomaticUpdateChecks = { [weak self] in
+                self?.toggleAutomaticUpdateChecks()
+            }
+            controller.onCheckForUpdates = { [weak self] in
+                self?.performUpdateCheck(trigger: .manual)
+            }
+            controller.onViewUpdateInstructions = { [weak self] in
+                self?.openUpdateInstructions()
+            }
             controller.onClose = { [weak self] in
                 self?.settingsRefreshTimer?.invalidate()
                 self?.settingsRefreshTimer = nil
@@ -345,6 +423,93 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 launchAtLoginStatus: launchAtLoginStatus()
             )
         )
+        controller.updateUpdates(
+            automaticChecksEnabled: automaticUpdateChecksEnabled,
+            isChecking: isCheckingForUpdates,
+            result: updateCheckResult
+        )
+    }
+
+    private func toggleAutomaticUpdateChecks() {
+        automaticUpdateChecksEnabled.toggle()
+        refreshSettingsWindow()
+        if automaticUpdateChecksEnabled {
+            performUpdateCheck(trigger: .automatic)
+        }
+    }
+
+    @objc private func checkForUpdates() {
+        performUpdateCheck(trigger: .manual)
+    }
+
+    private func performUpdateCheck(trigger: UpdateCheckTrigger) {
+        let now = Date()
+        guard !isCheckingForUpdates,
+              UpdateCheckPolicy.shouldCheck(
+                  trigger: trigger,
+                  automaticChecksEnabled: automaticUpdateChecksEnabled,
+                  lastCheckedAt: lastUpdateCheckDate,
+                  now: now
+              ) else {
+            return
+        }
+
+        isCheckingForUpdates = true
+        lastUpdateCheckDate = now
+        refreshSettingsWindow()
+        let currentVersion = currentVersion
+        let client = latestReleaseClient
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let result: UpdateCheckResult
+            do {
+                let release = try await client.fetchLatestRelease()
+                result = UpdateCheckPolicy.evaluate(
+                    currentVersion: currentVersion,
+                    release: release
+                )
+            } catch {
+                result = .failed
+            }
+            self.completeUpdateCheck(result, trigger: trigger)
+        }
+    }
+
+    private func completeUpdateCheck(
+        _ result: UpdateCheckResult,
+        trigger: UpdateCheckTrigger
+    ) {
+        isCheckingForUpdates = false
+        updateCheckResult = result
+        refreshSettingsWindow()
+
+        guard UpdateCheckPolicy.shouldNotify(
+                  result,
+                  trigger: trigger,
+                  lastNotifiedVersion: lastNotifiedUpdateVersion
+              ),
+              case let .updateAvailable(_, release) = result else {
+            return
+        }
+        lastNotifiedUpdateVersion = release.version
+        showUpdateAlert(release: release)
+    }
+
+    private func showUpdateAlert(release: UpdateRelease) {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = AppStrings.updateAlertTitle
+        alert.informativeText = AppStrings.updateAlertMessage(version: release.version)
+        alert.addButton(withTitle: AppStrings.viewUpdateInstructions)
+        alert.addButton(withTitle: AppStrings.updateAlertLater)
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn {
+            openUpdateInstructions()
+        }
+    }
+
+    @objc private func openUpdateInstructions() {
+        NSWorkspace.shared.open(Self.updateInstructionsURL)
     }
 
     private func resolveAndPersistSetupState(trusted: Bool, pinned: DisplayInfo?) -> SetupState {

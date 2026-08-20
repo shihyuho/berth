@@ -28,7 +28,15 @@ brew install --cask shihyuho/tap/berth
 
 你也可以從 Berth 選單啟用「登入時自動啟動」。
 
-## 更新
+## 更新 Berth
+
+Berth 可以從 GitHub Releases 檢查新版本並提醒你，但不會下載或安裝更新。請從 Berth 選單或「設定」選擇「檢查更新…」，再依原本的安裝方式操作。
+
+### 直接下載
+
+結束 Berth、下載最新的 [Berth Apple Silicon 版本](https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip)，然後取代「應用程式」中的既有 App。
+
+### Homebrew
 
 ```sh
 brew update

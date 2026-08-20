@@ -9,6 +9,9 @@ enum AppStrings {
         case menuOpenAccessibilitySettings = "menu.openAccessibilitySettings"
         case menuContinueSetup = "menu.continueSetup"
         case menuSettings = "menu.settings"
+        case menuCheckForUpdates = "menu.checkForUpdates"
+        case menuUpdateAvailable = "menu.updateAvailable"
+        case menuViewUpdateInstructions = "menu.viewUpdateInstructions"
         case menuLaunchAtLogin = "menu.launchAtLogin"
         case menuQuit = "menu.quit"
         case statusUnpinned = "status.unpinned"
@@ -54,6 +57,16 @@ enum AppStrings {
         case settingsVersion = "settings.about.version"
         case settingsProjectDescription = "settings.about.projectDescription"
         case settingsOpenProject = "settings.about.openProject"
+        case settingsUpdatesTitle = "settings.updates.title"
+        case settingsUpdatesAutomatic = "settings.updates.automatic"
+        case settingsUpdatesIdle = "settings.updates.idle"
+        case settingsUpdatesChecking = "settings.updates.checking"
+        case settingsUpdatesCurrent = "settings.updates.current"
+        case settingsUpdatesAvailable = "settings.updates.available"
+        case settingsUpdatesFailed = "settings.updates.failed"
+        case updateAlertTitle = "updates.alert.title"
+        case updateAlertMessage = "updates.alert.message"
+        case updateAlertLater = "updates.alert.later"
     }
 
     static var pinDockTo: String { localized(.menuPinDockTo) }
@@ -63,6 +76,8 @@ enum AppStrings {
     static var openAccessibilitySettings: String { localized(.menuOpenAccessibilitySettings) }
     static var continueSetup: String { localized(.menuContinueSetup) }
     static var settings: String { localized(.menuSettings) }
+    static var checkForUpdates: String { localized(.menuCheckForUpdates) }
+    static var viewUpdateInstructions: String { localized(.menuViewUpdateInstructions) }
     static var launchAtLogin: String { localized(.menuLaunchAtLogin) }
     static var quit: String { localized(.menuQuit) }
     static var unpinnedStatus: String { localized(.statusUnpinned) }
@@ -114,36 +129,51 @@ enum AppStrings {
     static var settingsAboutTitle: String { localized(.settingsAboutTitle) }
     static var settingsProjectDescription: String { localized(.settingsProjectDescription) }
     static var settingsOpenProject: String { localized(.settingsOpenProject) }
+    static var settingsUpdatesTitle: String { localized(.settingsUpdatesTitle) }
+    static var settingsUpdatesAutomatic: String { localized(.settingsUpdatesAutomatic) }
+    static var settingsUpdatesIdle: String { localized(.settingsUpdatesIdle) }
+    static var settingsUpdatesChecking: String { localized(.settingsUpdatesChecking) }
+    static var settingsUpdatesFailed: String { localized(.settingsUpdatesFailed) }
+    static var updateAlertTitle: String { localized(.updateAlertTitle) }
+    static var updateAlertLater: String { localized(.updateAlertLater) }
 
     static func pinnedStatus(displayName: String) -> String {
-        String(
-            format: localized(.statusPinned),
-            locale: Locale.current,
-            arguments: [displayName]
-        )
+        formatted(.statusPinned, arguments: [displayName])
     }
 
     static func fallbackDisplayName(displayID: UInt32) -> String {
-        String(
-            format: localized(.displayFallbackName),
-            locale: Locale.current,
-            arguments: [displayID]
-        )
+        formatted(.displayFallbackName, arguments: [displayID])
     }
 
     static func settingsVersion(version: String) -> String {
-        String(
-            format: localized(.settingsVersion),
-            locale: Locale.current,
-            arguments: [version]
-        )
+        formatted(.settingsVersion, arguments: [version])
     }
 
     static func settingsEffectiveAppLanguage(effectiveLanguageName: String) -> String {
+        formatted(.settingsAppLanguageEffective, arguments: [effectiveLanguageName])
+    }
+
+    static func updateAvailable(version: String) -> String {
+        formatted(.menuUpdateAvailable, arguments: [version])
+    }
+
+    static func settingsUpdatesCurrent(version: String) -> String {
+        formatted(.settingsUpdatesCurrent, arguments: [version])
+    }
+
+    static func settingsUpdatesAvailable(version: String) -> String {
+        formatted(.settingsUpdatesAvailable, arguments: [version])
+    }
+
+    static func updateAlertMessage(version: String) -> String {
+        formatted(.updateAlertMessage, arguments: [version])
+    }
+
+    private static func formatted(_ key: Key, arguments: [CVarArg]) -> String {
         String(
-            format: localized(.settingsAppLanguageEffective),
+            format: localized(key),
             locale: Locale.current,
-            arguments: [effectiveLanguageName]
+            arguments: arguments
         )
     }
 

@@ -15,6 +15,97 @@
         "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "設定…" } }
       }
     },
+    "menu.checkForUpdates" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "檢查更新…" } }
+      }
+    },
+    "menu.updateAvailable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Available: Berth %@" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ 更新可用" } }
+      }
+    },
+    "menu.viewUpdateInstructions" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Update Instructions…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "查看更新說明…" } }
+      }
+    },
+    "settings.updates.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Updates" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "更新" } }
+      }
+    },
+    "settings.updates.automatic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for updates automatically" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "自動檢查更新" } }
+      }
+    },
+    "settings.updates.idle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth checks GitHub Releases for new versions." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 會從 GitHub Releases 檢查新版本。" } }
+      }
+    },
+    "settings.updates.checking" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Checking for updates…" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "正在檢查更新…" } }
+      }
+    },
+    "settings.updates.current" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ is up to date." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ 已是最新版本。" } }
+      }
+    },
+    "settings.updates.available" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ is available." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ 已可更新。" } }
+      }
+    },
+    "settings.updates.failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn’t check for updates. Try again later." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "無法檢查更新，請稍後再試。" } }
+      }
+    },
+    "updates.alert.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth Update Available" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 更新可用" } }
+      }
+    },
+    "updates.alert.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ is available. View the update instructions for direct download and Homebrew." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ 已可更新。請查看直接下載與 Homebrew 的更新說明。" } }
+      }
+    },
+    "updates.alert.later" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Later" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "稍後" } }
+      }
+    },
     "settings.about.openProject" : {
       "extractionState" : "manual",
       "localizations" : {
