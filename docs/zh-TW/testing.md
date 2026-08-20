@@ -15,9 +15,22 @@ swift test --enable-code-coverage
 ./Scripts/build.sh
 ```
 
-`BerthCore` 的 line coverage 必須維持在 90% 以上。Executable 與作業系統 adapter 必須成功編譯，但不計入百分比門檻。每項行為變更與 bug 修正，都應透過 `BerthCore` 的 public interface 新增或更新測試。
+`BerthCore` 的 line coverage 必須維持在 90% 以上。Executable 與作業系統 adapter 必須成功編譯，但不計入百分比門檻。每項 `BerthCore` 行為變更與 bug 修正，都應透過 `BerthCore` 的 public interface 新增或更新測試。
+
+`Scripts/build.sh` 也會在編譯 String Catalog 前拒絕缺少 key 或翻譯不完整的已宣告語系。接著，它會檢查組裝完成的 App bundle 是否包含英文與台灣繁體中文資源、正確 lookup 與格式化值，並驗證不支援的語系會 fallback 至英文。這項 finished-bundle 檢查涵蓋「登入時自動啟動」所使用的同一條主 bundle 資源路徑。
 
 Workflow 會在每個 pull request 與每次 push 到 `main` 時執行。第一次成功執行後，再於 repository ruleset 將 `Test baseline` 設為 required check。
+
+## 在地化驗證
+
+請分別在 macOS 選用 App 語言 `English` 與 `繁體中文（台灣）`，每次重新啟動 Berth 後驗證以下選單狀態：
+
+- 未固定 Pinned Display。
+- 已固定於連接中的螢幕。
+- Pinned Display 已中斷連接。
+- 尚未授予「輔助使用」權限。
+
+兩種語言都必須保留 macOS 提供的螢幕名稱。也請啟用「登入時自動啟動」、重新登入，並確認 Berth 以 macOS 選用的語言啟動。若有任何狀態無法實際操作，請在 pull request 記錄為待驗證項目；自動 bundle lookup 不能取代這些 UI 證據。
 
 ## 發布 smoke test
 

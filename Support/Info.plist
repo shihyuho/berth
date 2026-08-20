@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>zh_TW</string>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Berth</string>
 	<key>CFBundleExecutable</key>
