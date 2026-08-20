@@ -204,10 +204,6 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             accessibilitySection.widthAnchor.constraint(equalTo: root.widthAnchor),
             launchAtLoginSection.widthAnchor.constraint(equalTo: root.widthAnchor),
             aboutSection.widthAnchor.constraint(equalTo: root.widthAnchor),
-            displayStatus.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -24),
-            accessibilityStatus.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -24),
-            launchAtLoginStatus.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -24),
-            projectDescription.widthAnchor.constraint(equalTo: root.widthAnchor, constant: -24),
         ])
     }
 
@@ -221,7 +217,12 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         stack.alignment = .leading
         stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
-        controls.forEach(stack.addArrangedSubview)
+        for control in controls {
+            stack.addArrangedSubview(control)
+            if let label = control as? NSTextField, label.cell?.wraps == true {
+                label.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
+            }
+        }
 
         guard let contentView = box.contentView else { return box }
         contentView.addSubview(stack)
