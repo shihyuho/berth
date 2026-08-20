@@ -10,8 +10,6 @@ Download [Berth for Apple Silicon](https://github.com/shihyuho/berth/releases/la
 
 Berth currently uses an ad-hoc signature. The first time you open it, macOS may block the App because it cannot verify the developer. Open System Settings, go to Privacy & Security, find the Berth message, and choose Open Anyway.
 
-The App interface is currently in Traditional Chinese. English localization is tracked in [Issue #6](https://github.com/shihyuho/berth/issues/6).
-
 ## Install with Homebrew
 
 ```sh

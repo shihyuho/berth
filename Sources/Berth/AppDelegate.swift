@@ -121,22 +121,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(disabledItem(statusText(trusted: trusted, pinned: pinned)))
         menu.addItem(.separator())
 
-        menu.addItem(disabledItem("固定 Dock 到:"))
+        menu.addItem(disabledItem(AppStrings.pinDockTo))
         for display in displays {
-            let title = display.isMain ? "\(display.name)(主螢幕)" : display.name
+            let title = display.isMain ? display.name + AppStrings.mainDisplaySuffix : display.name
             let item = NSMenuItem(title: title, action: #selector(screenItemClicked(_:)), keyEquivalent: "")
             item.target = self
             item.representedObject = display
             item.state = pinned == display ? .on : .off
             menu.addItem(item)
         }
-        let unpin = NSMenuItem(title: "取消固定", action: #selector(unpinClicked), keyEquivalent: "")
+        let unpin = NSMenuItem(title: AppStrings.unpin, action: #selector(unpinClicked), keyEquivalent: "")
         unpin.target = self
         unpin.isEnabled = pinnedUUID != nil
         menu.addItem(unpin)
         menu.addItem(.separator())
 
-        let summon = NSMenuItem(title: "立刻把 Dock 帶回固定螢幕", action: #selector(summonClicked), keyEquivalent: "")
+        let summon = NSMenuItem(
+            title: AppStrings.bringDockBack,
+            action: #selector(summonClicked),
+            keyEquivalent: ""
+        )
         summon.target = self
         summon.isEnabled = trusted && pinned != nil
         menu.addItem(summon)
@@ -144,30 +148,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         if !trusted {
             let openSettings = NSMenuItem(
-                title: "打開「輔助使用」設定…",
+                title: AppStrings.openAccessibilitySettings,
                 action: #selector(openAccessibilitySettings), keyEquivalent: ""
             )
             openSettings.target = self
             menu.addItem(openSettings)
         }
         if Bundle.main.bundleURL.pathExtension == "app" {
-            let login = NSMenuItem(title: "登入時自動啟動", action: #selector(toggleLoginItem), keyEquivalent: "")
+            let login = NSMenuItem(
+                title: AppStrings.launchAtLogin,
+                action: #selector(toggleLoginItem),
+                keyEquivalent: ""
+            )
             login.target = self
             login.state = SMAppService.mainApp.status == .enabled ? .on : .off
             menu.addItem(login)
         }
         menu.addItem(.separator())
 
-        let quit = NSMenuItem(title: "結束", action: #selector(quitClicked), keyEquivalent: "q")
+        let quit = NSMenuItem(title: AppStrings.quit, action: #selector(quitClicked), keyEquivalent: "q")
         quit.target = self
         menu.addItem(quit)
     }
 
     private func statusText(trusted: Bool, pinned: DisplayInfo?) -> String {
-        guard pinnedUUID != nil else { return "狀態:未固定" }
-        guard trusted else { return "狀態:等待「輔助使用」權限,攔截已停止" }
-        guard let pinned else { return "狀態:找不到固定的螢幕,請重新選擇" }
-        return dockGuard.isRunning ? "狀態:已固定於「\(pinned.name)」" : "狀態:攔截未啟動"
+        guard pinnedUUID != nil else { return AppStrings.unpinnedStatus }
+        guard trusted else { return AppStrings.waitingForAccessibilityStatus }
+        guard let pinned else { return AppStrings.pinnedDisplayMissingStatus }
+        return dockGuard.isRunning
+            ? AppStrings.pinnedStatus(displayName: pinned.name)
+            : AppStrings.dockControlInactiveStatus
     }
 
     private func disabledItem(_ title: String) -> NSMenuItem {

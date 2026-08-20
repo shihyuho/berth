@@ -7,7 +7,9 @@
 - Apple Silicon Mac
 - macOS 13 以上版本
 - Swift 5.9
-- Xcode Command Line Tools
+- 已由 `xcode-select` 選用的完整 Xcode
+
+只安裝 Xcode Command Line Tools 並不足夠，因為 App 建置會使用 Xcode 的 `xcstringstool` 編譯 String Catalog。
 
 ## 建置
 
@@ -17,7 +19,7 @@ cd berth
 ./Scripts/build.sh
 ```
 
-建置會產生使用 ad-hoc 簽章的 `dist/Berth.app`。啟用「登入時自動啟動」前，請先將 App 移至「應用程式」。重新建置後可能需要再次授予「輔助使用」權限。
+建置會驗證 String Catalog 中每個已宣告語系、將所有語系編譯進 App 主 bundle，並產生使用 ad-hoc 簽章的 `dist/Berth.app`。啟用「登入時自動啟動」前，請先將 App 移至「應用程式」。重新建置後可能需要再次授予「輔助使用」權限。
 
 ## 版本檔案
 

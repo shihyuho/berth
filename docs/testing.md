@@ -15,9 +15,22 @@ swift test --enable-code-coverage
 ./Scripts/build.sh
 ```
 
-`BerthCore` must maintain at least 90% line coverage. The executable and its operating-system adapters must compile, but they are excluded from the percentage gate. Every behavior change and bug fix should add or update a test through a public `BerthCore` interface.
+`BerthCore` must maintain at least 90% line coverage. The executable and its operating-system adapters must compile, but they are excluded from the percentage gate. Every `BerthCore` behavior change and bug fix should add or update a test through a public `BerthCore` interface.
+
+`Scripts/build.sh` also rejects missing keys and incomplete declared locales before compiling the String Catalog. It then checks the assembled App bundle for English and Taiwan Traditional Chinese resources, exact lookups, formatted values, and English fallback from an unsupported locale. This finished-bundle check covers the same main-bundle resource path used by Launch at Login.
 
 The workflow runs for every pull request and every push to `main`. Configure `Test baseline` as a required check in the repository ruleset after its first successful run.
+
+## Localization verification
+
+For each supported App language (`English` and `繁體中文（台灣）`), select the language in macOS, restart Berth, and verify these menu states:
+
+- Not pinned.
+- Pinned to a connected display.
+- Pinned Display disconnected.
+- Accessibility permission not granted.
+
+Keep macOS-provided display names unchanged in both languages. Also enable Launch at Login, restart the login session, and confirm Berth launches with the selected language. Record any state that could not be exercised as outstanding pull-request verification; automated bundle lookup does not replace this UI evidence.
 
 ## Release smoke test
 

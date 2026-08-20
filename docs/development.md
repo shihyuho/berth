@@ -7,7 +7,9 @@ English · [繁體中文](zh-TW/development.md)
 - Apple Silicon Mac
 - macOS 13 or later
 - Swift 5.9
-- Xcode Command Line Tools
+- A complete Xcode installation selected by `xcode-select`
+
+The standalone Xcode Command Line Tools package is not sufficient because the App build uses Xcode's `xcstringstool` to compile the String Catalog.
 
 ## Build
 
@@ -17,7 +19,7 @@ cd berth
 ./Scripts/build.sh
 ```
 
-The build produces `dist/Berth.app` with an ad-hoc signature. Move it to Applications before enabling Launch at Login. A rebuilt App may need Accessibility permission again.
+The build validates every declared String Catalog locale, compiles all of them into the main App bundle, and produces `dist/Berth.app` with an ad-hoc signature. Move it to Applications before enabling Launch at Login. A rebuilt App may need Accessibility permission again.
 
 ## Version files
 

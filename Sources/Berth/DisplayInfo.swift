@@ -11,7 +11,8 @@ struct DisplayInfo: Equatable {
     static func active() -> [DisplayInfo] {
         activeDisplayIDs().compactMap { id in
             guard let uuid = uuidString(for: id) else { return nil }
-            let name = NSScreen.screens.first { $0.displayID == id }?.localizedName ?? "螢幕 \(id)"
+            let name = NSScreen.screens.first { $0.displayID == id }?.localizedName
+                ?? AppStrings.fallbackDisplayName(displayID: id)
             return DisplayInfo(id: id, uuid: uuid, name: name, isMain: CGDisplayIsMain(id) != 0)
         }
     }
