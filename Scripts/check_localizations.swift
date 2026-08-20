@@ -9,6 +9,7 @@ private let requiredKeys: Set<String> = [
     "menu.bringDockBack",
     "menu.openAccessibilitySettings",
     "menu.continueSetup",
+    "menu.settings",
     "menu.launchAtLogin",
     "menu.quit",
     "status.unpinned",
@@ -35,6 +36,20 @@ private let requiredKeys: Set<String> = [
     "setup.status.needsAccessibility",
     "setup.status.pinnedDisplayMissing",
     "setup.close",
+    "settings.title",
+    "settings.pinnedDisplay.missing",
+    "settings.pinnedDisplay.unavailableSelection",
+    "settings.accessibility.recovery",
+    "settings.launchAtLogin.title",
+    "settings.launchAtLogin.enabled",
+    "settings.launchAtLogin.disabled",
+    "settings.launchAtLogin.requiresApproval",
+    "settings.launchAtLogin.unavailable",
+    "settings.launchAtLogin.openSettings",
+    "settings.about.title",
+    "settings.about.version",
+    "settings.about.projectDescription",
+    "settings.about.openProject",
 ]
 
 private func fail(_ message: String) -> Never {
@@ -111,6 +126,7 @@ private let expectedValues: [String: [String: String]] = [
         "menu.bringDockBack": "Bring Dock Back to Pinned Display",
         "menu.openAccessibilitySettings": "Open Accessibility Settings…",
         "menu.continueSetup": "Continue Setup…",
+        "menu.settings": "Settings…",
         "menu.launchAtLogin": "Launch at Login",
         "menu.quit": "Quit",
         "status.unpinned": "Status: Not pinned",
@@ -137,6 +153,20 @@ private let expectedValues: [String: [String: String]] = [
         "setup.status.needsAccessibility": "Grant Accessibility permission to continue.",
         "setup.status.pinnedDisplayMissing": "The Pinned Display is unavailable. Connect it or choose another display.",
         "setup.close": "Close",
+        "settings.title": "Berth Settings",
+        "settings.pinnedDisplay.missing": "The Pinned Display is unavailable. Connect it or choose another display.",
+        "settings.pinnedDisplay.unavailableSelection": "Pinned Display (Unavailable)",
+        "settings.accessibility.recovery": "Accessibility permission was revoked. Open System Settings to restore Dock Control.",
+        "settings.launchAtLogin.title": "Launch at Login",
+        "settings.launchAtLogin.enabled": "Berth is registered to launch at login.",
+        "settings.launchAtLogin.disabled": "Berth will not launch at login.",
+        "settings.launchAtLogin.requiresApproval": "Approval is required in System Settings.",
+        "settings.launchAtLogin.unavailable": "Launch at Login is available in the packaged app.",
+        "settings.launchAtLogin.openSettings": "Open Login Items Settings…",
+        "settings.about.title": "About",
+        "settings.about.version": "Berth %@",
+        "settings.about.projectDescription": "Berth keeps the macOS Dock on the display you choose as its persistent berth.",
+        "settings.about.openProject": "View Project on GitHub",
     ],
     "zh-TW": [
         "menu.pinDockTo": "將 Dock 固定於：",
@@ -145,6 +175,7 @@ private let expectedValues: [String: [String: String]] = [
         "menu.bringDockBack": "立即將 Dock 帶回固定螢幕",
         "menu.openAccessibilitySettings": "開啟「輔助使用」設定…",
         "menu.continueSetup": "繼續設定…",
+        "menu.settings": "設定…",
         "menu.launchAtLogin": "登入時自動啟動",
         "menu.quit": "結束",
         "status.unpinned": "狀態：未固定",
@@ -171,6 +202,20 @@ private let expectedValues: [String: [String: String]] = [
         "setup.status.needsAccessibility": "請授予「輔助使用」權限以繼續。",
         "setup.status.pinnedDisplayMissing": "固定螢幕目前無法使用。請連接該螢幕或選擇其他螢幕。",
         "setup.close": "關閉",
+        "settings.title": "Berth 設定",
+        "settings.pinnedDisplay.missing": "固定螢幕目前無法使用。請連接該螢幕或選擇其他螢幕。",
+        "settings.pinnedDisplay.unavailableSelection": "固定螢幕（目前無法使用）",
+        "settings.accessibility.recovery": "「輔助使用」權限已被撤銷。請開啟「系統設定」以恢復 Dock 控制。",
+        "settings.launchAtLogin.title": "登入時自動啟動",
+        "settings.launchAtLogin.enabled": "Berth 已登錄為登入時自動啟動。",
+        "settings.launchAtLogin.disabled": "Berth 不會在登入時自動啟動。",
+        "settings.launchAtLogin.requiresApproval": "需要在「系統設定」中核准。",
+        "settings.launchAtLogin.unavailable": "「登入時自動啟動」僅適用於已封裝的 App。",
+        "settings.launchAtLogin.openSettings": "開啟「登入項目」設定…",
+        "settings.about.title": "關於",
+        "settings.about.version": "Berth %@",
+        "settings.about.projectDescription": "Berth 會將 macOS Dock 保持在你選擇的固定螢幕上。",
+        "settings.about.openProject": "在 GitHub 查看專案",
     ],
 ]
 
@@ -224,6 +269,15 @@ private func checkBundle(at path: String) {
     )
     guard englishPinned == "Status: Pinned to “Studio Display”" else {
         fail("formatted English Pinned Display status is incorrect")
+    }
+
+    let englishVersion = String(
+        format: localized("settings.about.version", locale: "en", appBundle: appBundle),
+        locale: Locale(identifier: "en"),
+        arguments: ["1.2.3"]
+    )
+    guard englishVersion == "Berth 1.2.3" else {
+        fail("formatted English settings version is incorrect")
     }
 
     let chineseDisplay = String(

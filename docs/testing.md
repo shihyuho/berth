@@ -32,6 +32,8 @@ For each supported App language (`English` and `繁體中文（台灣）`), sele
 
 Keep macOS-provided display names unchanged in both languages. Also enable Launch at Login, restart the login session, and confirm Berth launches with the selected language. Record any state that could not be exercised as outstanding pull-request verification; automated bundle lookup does not replace this UI evidence.
 
+With the settings window open in each language, verify that selecting **Settings…** again focuses the same window, changing the Pinned Display updates both settings and the menu, and display or Accessibility changes refresh without reopening the window. Exercise both the initial Accessibility grant and revoked-permission recovery routes. Toggle Launch at Login in settings, confirm the reported registration state changes, then restore the original state. Confirm the About section shows the packaged Berth version and opens the project page. No automatic-update control should appear.
+
 ## First-setup verification
 
 Before releasing setup changes, use a disposable user defaults domain or a fresh macOS account and verify:
