@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.1](https://github.com/shihyuho/berth/compare/1.2.0...1.2.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* **ci:** merge clean Homebrew PRs directly ([#30](https://github.com/shihyuho/berth/issues/30)) ([57ca247](https://github.com/shihyuho/berth/commit/57ca247e8c75cf538f7ca1d17bc1b8df83a3ec01))
+* confirm when Berth is up to date ([#28](https://github.com/shihyuho/berth/issues/28)) ([5f77f6b](https://github.com/shihyuho/berth/commit/5f77f6bae11b1e7170faed4d388669514dfb7add))
+
 ## [1.2.0](https://github.com/shihyuho/berth/compare/1.1.0...1.2.0) (2026-08-21)
 
 
