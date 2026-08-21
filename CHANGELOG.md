@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/shihyuho/berth/compare/1.1.0...1.2.0) (2026-08-21)
+
+
+### Features
+
+* check for updates and notify users ([#27](https://github.com/shihyuho/berth/issues/27)) ([4d130d3](https://github.com/shihyuho/berth/commit/4d130d3c88cac56e47b86da6c3848a302b8f2b78))
+* expose App Language settings through macOS ([#26](https://github.com/shihyuho/berth/issues/26)) ([ecfba9f](https://github.com/shihyuho/berth/commit/ecfba9fd1d17776c295af7d8c3b2477c022f773b))
+* **release:** auto-merge Homebrew update PRs ([#24](https://github.com/shihyuho/berth/issues/24)) ([4cc574f](https://github.com/shihyuho/berth/commit/4cc574fda1e3fa0ce30c3b058c1f2403e52e3ea5))
+
+
+### Bug Fixes
+
+* prevent settings layout constraint conflicts ([#21](https://github.com/shihyuho/berth/issues/21)) ([fd06010](https://github.com/shihyuho/berth/commit/fd0601013aa8aa0333821f8acb607abb593b292a))
+* reliably summon Dock to pinned display ([#23](https://github.com/shihyuho/berth/issues/23)) ([c976d1d](https://github.com/shihyuho/berth/commit/c976d1d2f72076c2badbae4d2d63d70a34b86330))
+
 ## [1.1.0](https://github.com/shihyuho/berth/compare/1.0.0...1.1.0) (2026-08-20)
 
 
