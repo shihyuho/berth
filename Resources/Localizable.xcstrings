@@ -106,6 +106,27 @@
         "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "稍後" } }
       }
     },
+    "updates.upToDateAlert.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth Is Up to Date" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "Berth 已是最新版本" } }
+      }
+    },
+    "updates.upToDateAlert.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Berth %@ is the latest version available." } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "你目前使用的 Berth %@ 已是最新版本。" } }
+      }
+    },
+    "updates.upToDateAlert.dismiss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "zh-TW" : { "stringUnit" : { "state" : "translated", "value" : "好" } }
+      }
+    },
     "settings.about.openProject" : {
       "extractionState" : "manual",
       "localizations" : {

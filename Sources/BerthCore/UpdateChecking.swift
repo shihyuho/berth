@@ -195,6 +195,28 @@ public enum UpdateCheckPresentation: Equatable, Sendable {
     }
 }
 
+public enum UpdateCheckAlert: Equatable, Sendable {
+    case none
+    case upToDate(version: String)
+    case updateAvailable(release: UpdateRelease)
+
+    public static func resolve(
+        result: UpdateCheckResult,
+        trigger: UpdateCheckTrigger,
+        shouldNotifyAboutAvailableUpdate: Bool
+    ) -> Self {
+        if trigger == .manual,
+           case let .upToDate(currentVersion) = result {
+            return .upToDate(version: currentVersion)
+        }
+        if shouldNotifyAboutAvailableUpdate,
+           case let .updateAvailable(_, release) = result {
+            return .updateAvailable(release: release)
+        }
+        return .none
+    }
+}
+
 public enum UpdateCheckPolicy {
     public static func shouldNotify(
         _ result: UpdateCheckResult,

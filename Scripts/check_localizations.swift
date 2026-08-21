@@ -55,6 +55,9 @@ private let requiredKeys: Set<String> = [
     "settings.about.version",
     "settings.about.projectDescription",
     "settings.about.openProject",
+    "updates.upToDateAlert.title",
+    "updates.upToDateAlert.message",
+    "updates.upToDateAlert.dismiss",
 ]
 
 private func fail(_ message: String) -> Never {
@@ -177,6 +180,9 @@ private let expectedValues: [String: [String: String]] = [
         "settings.about.version": "Berth %@",
         "settings.about.projectDescription": "Berth keeps the macOS Dock on the display you choose as its persistent berth.",
         "settings.about.openProject": "View Project on GitHub",
+        "updates.upToDateAlert.title": "Berth Is Up to Date",
+        "updates.upToDateAlert.message": "Berth %@ is the latest version available.",
+        "updates.upToDateAlert.dismiss": "OK",
     ],
     "zh-TW": [
         "menu.pinDockTo": "將 Dock 固定於：",
@@ -231,6 +237,9 @@ private let expectedValues: [String: [String: String]] = [
         "settings.about.version": "Berth %@",
         "settings.about.projectDescription": "Berth 會將 macOS Dock 保持在你選擇的固定螢幕上。",
         "settings.about.openProject": "在 GitHub 查看專案",
+        "updates.upToDateAlert.title": "Berth 已是最新版本",
+        "updates.upToDateAlert.message": "你目前使用的 Berth %@ 已是最新版本。",
+        "updates.upToDateAlert.dismiss": "好",
     ],
 ]
 
