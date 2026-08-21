@@ -126,7 +126,7 @@ final class UpdateCheckingTests: XCTestCase {
         )
     }
 
-    func testManualCheckNeverPrompts() {
+    func testManualCheckDoesNotUseAutomaticUpdateReminder() {
         let result = UpdateCheckResult.updateAvailable(
             currentVersion: "1.2.0",
             release: UpdateRelease(version: "1.3.0", detailsURL: releaseURL)
@@ -138,6 +138,60 @@ final class UpdateCheckingTests: XCTestCase {
                 trigger: .manual,
                 notifiedVersions: []
             )
+        )
+    }
+
+    func testOnlyManualCurrentCheckRequestsUpToDateAlert() {
+        let currentResult = UpdateCheckResult.upToDate(currentVersion: "1.2.0")
+
+        XCTAssertEqual(
+            UpdateCheckAlert.resolve(
+                result: currentResult,
+                trigger: .manual,
+                shouldNotifyAboutAvailableUpdate: false
+            ),
+            .upToDate(version: "1.2.0")
+        )
+        XCTAssertEqual(
+            UpdateCheckAlert.resolve(
+                result: currentResult,
+                trigger: .automatic,
+                shouldNotifyAboutAvailableUpdate: false
+            ),
+            .none
+        )
+        XCTAssertEqual(
+            UpdateCheckAlert.resolve(
+                result: .failed,
+                trigger: .manual,
+                shouldNotifyAboutAvailableUpdate: false
+            ),
+            .none
+        )
+    }
+
+    func testAvailableUpdateAlertStillFollowsNotificationPolicy() {
+        let release = UpdateRelease(version: "1.3.0", detailsURL: releaseURL)
+        let result = UpdateCheckResult.updateAvailable(
+            currentVersion: "1.2.0",
+            release: release
+        )
+
+        XCTAssertEqual(
+            UpdateCheckAlert.resolve(
+                result: result,
+                trigger: .automatic,
+                shouldNotifyAboutAvailableUpdate: true
+            ),
+            .updateAvailable(release: release)
+        )
+        XCTAssertEqual(
+            UpdateCheckAlert.resolve(
+                result: result,
+                trigger: .manual,
+                shouldNotifyAboutAvailableUpdate: false
+            ),
+            .none
         )
     }
 
