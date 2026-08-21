@@ -5,11 +5,84 @@ import XCTest
 @testable import Berth
 
 final class SettingsWindowControllerLayoutTests: XCTestCase {
+    func testUpdatesSectionShowsPersistentAvailableVersionAndActions() throws {
+        let controller = makeController()
+        controller.updateUpdates(
+            automaticChecksEnabled: true,
+            isChecking: false,
+            result: .updateAvailable(
+                currentVersion: "1.2.0",
+                release: UpdateRelease(
+                    version: "1.3.0",
+                    detailsURL: URL(string: "https://github.com/shihyuho/berth/releases/tag/1.3.0")!
+                )
+            )
+        )
+
+        let contentView = try XCTUnwrap(controller.window?.contentView)
+        let automaticToggle = try XCTUnwrap(
+            contentView.descendants(of: NSButton.self).first {
+                $0.identifier?.rawValue == "settings.updates.automatic"
+            }
+        )
+        let checkButton = try XCTUnwrap(
+            contentView.descendants(of: NSButton.self).first {
+                $0.identifier?.rawValue == "settings.updates.check"
+            }
+        )
+        let viewButton = try XCTUnwrap(
+            contentView.descendants(of: NSButton.self).first {
+                $0.identifier?.rawValue == "settings.updates.view"
+            }
+        )
+        let status = try XCTUnwrap(
+            contentView.descendants(of: NSTextField.self).first {
+                $0.identifier?.rawValue == "settings.updates.status"
+            }
+        )
+
+        XCTAssertEqual(automaticToggle.state, .on)
+        XCTAssertTrue(checkButton.isEnabled)
+        XCTAssertFalse(viewButton.isHidden)
+        XCTAssertTrue(status.stringValue.contains("1.3.0"))
+    }
+
+    func testFailedRecheckStillShowsKnownVersionAndInstructions() throws {
+        let controller = makeController()
+        let release = UpdateRelease(
+            version: "1.3.0",
+            detailsURL: URL(string: "https://github.com/shihyuho/berth/releases/tag/1.3.0")!
+        )
+
+        controller.updateUpdates(
+            automaticChecksEnabled: true,
+            isChecking: false,
+            result: .failed,
+            knownAvailableRelease: release
+        )
+
+        let contentView = try XCTUnwrap(controller.window?.contentView)
+        let viewButton = try XCTUnwrap(
+            contentView.descendants(of: NSButton.self).first {
+                $0.identifier?.rawValue == "settings.updates.view"
+            }
+        )
+        let status = try XCTUnwrap(
+            contentView.descendants(of: NSTextField.self).first {
+                $0.identifier?.rawValue == "settings.updates.status"
+            }
+        )
+
+        XCTAssertFalse(viewButton.isHidden)
+        XCTAssertTrue(status.stringValue.contains(UpdateSettingsContent.english.failed))
+        XCTAssertTrue(status.stringValue.contains("1.3.0"))
+    }
+
     func testWrappingLabelsStayWithinTheirSectionStacks() throws {
         let controller = makeController()
         let contentView = try XCTUnwrap(controller.window?.contentView)
         let sections = contentView.descendants(of: NSBox.self)
-        XCTAssertEqual(sections.count, 4)
+        XCTAssertEqual(sections.count, 5)
 
         for section in sections {
             let sectionContent = try XCTUnwrap(section.contentView)
@@ -93,9 +166,16 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
     }
 
     func testSupportedLanguageContentAndErrorFitStableWindow() throws {
-        for languageContent in [AppLanguageSettingsContent.english, .traditionalChinese] {
-            let controller = makeController(languageContent: languageContent)
-            let sizeBeforeError = try XCTUnwrap(controller.window).frame.size
+        for (languageContent, updateContent) in [
+            (AppLanguageSettingsContent.english, UpdateSettingsContent.english),
+            (.traditionalChinese, .traditionalChinese),
+        ] {
+            let controller = makeController(
+                languageContent: languageContent,
+                updateContent: updateContent
+            )
+            let windowBeforeError = try XCTUnwrap(controller.window)
+            let sizeBeforeError = windowBeforeError.frame.size
 
             populateLongestStatusContent(in: controller)
             controller.showLanguageSettingsError()
@@ -106,9 +186,8 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
 
             let contentView = try XCTUnwrap(window.contentView)
             XCTAssertEqual(contentView.bounds.width, 520)
-            XCTAssertEqual(contentView.bounds.height, 640)
             let sections = contentView.descendants(of: NSBox.self)
-            XCTAssertEqual(sections.count, 4)
+            XCTAssertEqual(sections.count, 5)
             for section in sections {
                 XCTAssertTrue(
                     contentView.bounds.insetBy(dx: -0.5, dy: -0.5).contains(
@@ -164,6 +243,17 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
                 launchAtLoginStatus: .requiresApproval
             )
         )
+        controller.updateUpdates(
+            automaticChecksEnabled: true,
+            isChecking: false,
+            result: .updateAvailable(
+                currentVersion: "1.2.0",
+                release: UpdateRelease(
+                    version: "100.200.300",
+                    detailsURL: URL(string: "https://example.com/releases/100.200.300")!
+                )
+            )
+        )
     }
 
     private func assertVisibleArrangedSubviewsFitWithoutOverlap(
@@ -203,6 +293,7 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
 
     private func makeController(
         languageContent: AppLanguageSettingsContent,
+        updateContent: UpdateSettingsContent = .english,
         systemSettingsOpener: SystemSettingsOpener = SystemSettingsOpener(
             openURL: { _, completion in completion(true) },
             systemSettingsURL: { nil },
@@ -213,11 +304,38 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
         let controller = SettingsWindowController(
             version: "test",
             languageContent: languageContent,
-            systemSettingsOpener: systemSettingsOpener
+            systemSettingsOpener: systemSettingsOpener,
+            updateContent: updateContent
         )
         controller.window?.contentView?.layoutSubtreeIfNeeded()
         return controller
     }
+}
+
+private extension UpdateSettingsContent {
+    static let english = UpdateSettingsContent(
+        title: "Updates",
+        automaticChecks: "Check for updates automatically",
+        idle: "Berth checks GitHub Releases for new versions.",
+        checking: "Checking for updates…",
+        current: { "Berth \($0) is up to date." },
+        available: { "Berth \($0) is available." },
+        failed: "Couldn’t check for updates. Try again later.",
+        check: "Check for Updates…",
+        viewInstructions: "View Update Instructions…"
+    )
+
+    static let traditionalChinese = UpdateSettingsContent(
+        title: "更新",
+        automaticChecks: "自動檢查更新",
+        idle: "Berth 會從 GitHub Releases 檢查新版本。",
+        checking: "正在檢查更新…",
+        current: { "Berth \($0) 已是最新版本。" },
+        available: { "Berth \($0) 已可更新。" },
+        failed: "無法檢查更新，請稍後再試。",
+        check: "檢查更新…",
+        viewInstructions: "查看更新說明…"
+    )
 }
 
 private extension AppLanguageSettingsContent {

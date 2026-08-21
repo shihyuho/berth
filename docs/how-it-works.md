@@ -14,6 +14,6 @@ Berth stores the selected display identifier. If that display disappears, Berth 
 
 ## Privacy and permission
 
-Accessibility access is required because Berth reads mouse movement and generates mouse movement used to summon the Dock. Berth does not monitor the keyboard, save input, or send data over the network.
+Accessibility access is required because Berth reads mouse movement and generates mouse movement used to summon the Dock. Berth does not monitor the keyboard, save input, collect analytics, download updates, or send personal information. When automatic update checks are enabled, Berth contacts the public GitHub Releases API no more than once per 24 hours to compare version numbers. You can disable automatic checks in Settings and still check manually.
 
 Revoking Accessibility access stops interception automatically.

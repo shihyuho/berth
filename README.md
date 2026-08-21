@@ -30,7 +30,7 @@ It does not change your Dock preferences or block the pointer from crossing betw
 - **Bring it back automatically** when macOS moves it elsewhere.
 - **Keep pointer movement natural** across shared display edges.
 - **Match your setup** with bottom, left, and right Dock positions.
-- **Stay private by design** with no keyboard monitoring, analytics, saved input, or network connection.
+- **Stay private by design** with no keyboard monitoring, analytics, or saved input; optional update checks contact only GitHub Releases.
 - **Start with your Mac** through the built-in Launch at Login option.
 
 ## Get started

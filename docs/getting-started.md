@@ -28,7 +28,15 @@ If you previously copied Berth to Applications by hand, quit and remove that cop
 
 You can also enable Launch at Login from the Berth menu.
 
-## Update
+## Update Berth
+
+Berth can check GitHub Releases for a newer version and notify you, but it never downloads or installs updates. Use **Check for Updates…** from the Berth menu or Settings, then follow the path that matches how you installed it.
+
+### Direct download
+
+Quit Berth, download the latest [Berth for Apple Silicon](https://github.com/shihyuho/berth/releases/latest/download/Berth-arm64.zip), and replace the existing App in Applications.
+
+### Homebrew
 
 ```sh
 brew update

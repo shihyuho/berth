@@ -8,6 +8,9 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     var onToggleLaunchAtLogin: (() -> Void)?
     var onOpenLoginItemsSettings: (() -> Void)?
     var onOpenProject: (() -> Void)?
+    var onToggleAutomaticUpdateChecks: (() -> Void)?
+    var onCheckForUpdates: (() -> Void)?
+    var onViewUpdateInstructions: (() -> Void)?
     var onClose: (() -> Void)?
 
     private let displayPopup = NSPopUpButton(frame: .zero, pullsDown: false)
@@ -17,25 +20,32 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     private let launchAtLoginToggle = NSButton(checkboxWithTitle: AppStrings.launchAtLogin, target: nil, action: nil)
     private let launchAtLoginStatus = NSTextField(wrappingLabelWithString: "")
     private let openLoginItemsSettingsButton = NSButton()
+    private let automaticUpdateChecksToggle = NSButton(checkboxWithTitle: "", target: nil, action: nil)
+    private let updateStatus = NSTextField(wrappingLabelWithString: "")
+    private let checkForUpdatesButton = NSButton()
+    private let viewUpdateInstructionsButton = NSButton()
     private let languageSettingsError: NSTextField
     private let systemSettingsOpener: SystemSettingsOpener
+    private let updateContent: UpdateSettingsContent
     private var accessibilityAction: SettingsPresentation.AccessibilityAction = .none
 
     convenience init(version: String) {
         self.init(
             version: version,
             languageContent: .localized(effectiveLanguageName: AppLanguage.effectiveName()),
-            systemSettingsOpener: SystemSettingsOpener()
+            systemSettingsOpener: SystemSettingsOpener(),
+            updateContent: .localized()
         )
     }
 
     init(
         version: String,
         languageContent: AppLanguageSettingsContent,
-        systemSettingsOpener: SystemSettingsOpener
+        systemSettingsOpener: SystemSettingsOpener,
+        updateContent: UpdateSettingsContent = .localized()
     ) {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 640),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 760),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
@@ -44,12 +54,14 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             wrappingLabelWithString: languageContent.openError
         )
         self.systemSettingsOpener = systemSettingsOpener
+        self.updateContent = updateContent
         window.title = AppStrings.settingsTitle
         window.isReleasedWhenClosed = false
         window.center()
         super.init(window: window)
         window.delegate = self
         buildContent(version: version, languageContent: languageContent)
+        updateUpdates(automaticChecksEnabled: true, isChecking: false, result: nil)
     }
 
     @available(*, unavailable)
@@ -73,6 +85,43 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
     func showLanguageSettingsError() {
         languageSettingsError.isHidden = false
+    }
+
+    func updateUpdates(
+        automaticChecksEnabled: Bool,
+        isChecking: Bool,
+        result: UpdateCheckResult?,
+        knownAvailableRelease: UpdateRelease? = nil
+    ) {
+        automaticUpdateChecksToggle.state = automaticChecksEnabled ? .on : .off
+        checkForUpdatesButton.isEnabled = !isChecking
+        let presentation = UpdateCheckPresentation.resolve(
+            isChecking: isChecking,
+            result: result,
+            knownAvailableRelease: knownAvailableRelease
+        )
+        viewUpdateInstructionsButton.isHidden = !presentation.showsInstructions
+
+        switch presentation {
+        case .idle:
+            updateStatus.stringValue = updateContent.idle
+        case .checking:
+            updateStatus.stringValue = updateContent.checking
+        case let .current(version):
+            updateStatus.stringValue = updateContent.current(version)
+        case let .available(version):
+            updateStatus.stringValue = updateContent.available(version)
+        case let .failed(knownAvailableVersion):
+            if let knownAvailableVersion {
+                updateStatus.stringValue = [
+                    updateContent.failed,
+                    updateContent.available(knownAvailableVersion),
+                ].joined(separator: " ")
+            } else {
+                updateStatus.stringValue = updateContent.failed
+            }
+        }
+        updateStatus.textColor = .secondaryLabelColor
     }
 
     private func updateDisplay(
@@ -237,6 +286,35 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
         )
         root.addArrangedSubview(generalSection)
 
+        automaticUpdateChecksToggle.identifier = NSUserInterfaceItemIdentifier(
+            "settings.updates.automatic"
+        )
+        automaticUpdateChecksToggle.title = updateContent.automaticChecks
+        automaticUpdateChecksToggle.target = self
+        automaticUpdateChecksToggle.action = #selector(toggleAutomaticUpdateChecks)
+        updateStatus.identifier = NSUserInterfaceItemIdentifier("settings.updates.status")
+        checkForUpdatesButton.identifier = NSUserInterfaceItemIdentifier("settings.updates.check")
+        checkForUpdatesButton.title = updateContent.check
+        checkForUpdatesButton.target = self
+        checkForUpdatesButton.action = #selector(checkForUpdates)
+        viewUpdateInstructionsButton.identifier = NSUserInterfaceItemIdentifier(
+            "settings.updates.view"
+        )
+        viewUpdateInstructionsButton.title = updateContent.viewInstructions
+        viewUpdateInstructionsButton.target = self
+        viewUpdateInstructionsButton.action = #selector(viewUpdateInstructions)
+        viewUpdateInstructionsButton.isHidden = true
+        let updateButtons = NSStackView(
+            views: [checkForUpdatesButton, viewUpdateInstructionsButton]
+        )
+        updateButtons.orientation = .horizontal
+        updateButtons.spacing = 8
+        let updatesSection = section(
+            title: updateContent.title,
+            controls: [automaticUpdateChecksToggle, updateStatus, updateButtons]
+        )
+        root.addArrangedSubview(updatesSection)
+
         let versionLabel = NSTextField(labelWithString: AppStrings.settingsVersion(version: version))
         versionLabel.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .semibold)
         let projectDescription = wrappingLabel(AppStrings.settingsProjectDescription)
@@ -260,6 +338,7 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             displaySection.widthAnchor.constraint(equalTo: root.widthAnchor),
             accessibilitySection.widthAnchor.constraint(equalTo: root.widthAnchor),
             generalSection.widthAnchor.constraint(equalTo: root.widthAnchor),
+            updatesSection.widthAnchor.constraint(equalTo: root.widthAnchor),
             aboutSection.widthAnchor.constraint(equalTo: root.widthAnchor),
         ])
     }
@@ -334,5 +413,17 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
 
     @objc private func openProject() {
         onOpenProject?()
+    }
+
+    @objc private func toggleAutomaticUpdateChecks() {
+        onToggleAutomaticUpdateChecks?()
+    }
+
+    @objc private func checkForUpdates() {
+        onCheckForUpdates?()
+    }
+
+    @objc private func viewUpdateInstructions() {
+        onViewUpdateInstructions?()
     }
 }
