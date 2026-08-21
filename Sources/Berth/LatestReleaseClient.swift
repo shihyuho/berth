@@ -26,7 +26,10 @@ struct LatestReleaseClient {
     }
 
     func fetchLatestRelease() async throws -> UpdateRelease {
-        var request = URLRequest(url: Self.latestReleaseURL)
+        var request = URLRequest(
+            url: Self.latestReleaseURL,
+            cachePolicy: .reloadIgnoringLocalCacheData
+        )
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         request.setValue("2022-11-28", forHTTPHeaderField: "X-GitHub-Api-Version")
         request.setValue("Berth", forHTTPHeaderField: "User-Agent")

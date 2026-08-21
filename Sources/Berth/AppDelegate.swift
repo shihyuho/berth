@@ -13,14 +13,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var setupWindowController: SetupWindowController?
     private var settingsWindowController: SettingsWindowController?
     private let latestReleaseClient = LatestReleaseClient()
-    private var updateCheckResult: UpdateCheckResult?
     private var isCheckingForUpdates = false
+    private lazy var updateCheckCoordinator = UpdateCheckCoordinator(
+        store: UserDefaultsUpdateCheckStateStore(),
+        currentVersion: currentVersion
+    )
 
     private static let pinnedKey = "PinnedDisplayUUID"
     private static let setupCompletedKey = "HasCompletedSetup"
     private static let automaticUpdateChecksKey = "AutomaticUpdateChecksEnabled"
-    private static let lastUpdateCheckKey = "LastUpdateCheckDate"
-    private static let lastNotifiedUpdateVersionKey = "LastNotifiedUpdateVersion"
     private static let updateInstructionsURL = URL(
         string: "https://github.com/shihyuho/berth/blob/main/docs/getting-started.md#update-berth"
     )!
@@ -46,16 +47,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             UserDefaults.standard.object(forKey: Self.automaticUpdateChecksKey) as? Bool ?? true
         }
         set { UserDefaults.standard.set(newValue, forKey: Self.automaticUpdateChecksKey) }
-    }
-
-    private var lastUpdateCheckDate: Date? {
-        get { UserDefaults.standard.object(forKey: Self.lastUpdateCheckKey) as? Date }
-        set { UserDefaults.standard.set(newValue, forKey: Self.lastUpdateCheckKey) }
-    }
-
-    private var lastNotifiedUpdateVersion: String? {
-        get { UserDefaults.standard.string(forKey: Self.lastNotifiedUpdateVersionKey) }
-        set { UserDefaults.standard.set(newValue, forKey: Self.lastNotifiedUpdateVersionKey) }
     }
 
     private var currentVersion: String {
@@ -223,7 +214,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         let updatePresentation = UpdateCheckPresentation.resolve(
             isChecking: isCheckingForUpdates,
-            result: updateCheckResult
+            result: updateCheckCoordinator.result
         )
         switch updatePresentation {
         case let .current(version):
@@ -426,7 +417,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         controller.updateUpdates(
             automaticChecksEnabled: automaticUpdateChecksEnabled,
             isChecking: isCheckingForUpdates,
-            result: updateCheckResult
+            result: updateCheckCoordinator.result
         )
     }
 
@@ -445,17 +436,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func performUpdateCheck(trigger: UpdateCheckTrigger) {
         let now = Date()
         guard !isCheckingForUpdates,
-              UpdateCheckPolicy.shouldCheck(
+              updateCheckCoordinator.beginCheck(
                   trigger: trigger,
                   automaticChecksEnabled: automaticUpdateChecksEnabled,
-                  lastCheckedAt: lastUpdateCheckDate,
                   now: now
               ) else {
             return
         }
 
         isCheckingForUpdates = true
-        lastUpdateCheckDate = now
         refreshSettingsWindow()
         let currentVersion = currentVersion
         let client = latestReleaseClient
@@ -480,18 +469,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         trigger: UpdateCheckTrigger
     ) {
         isCheckingForUpdates = false
-        updateCheckResult = result
+        let shouldNotify = updateCheckCoordinator.completeCheck(result, trigger: trigger)
         refreshSettingsWindow()
 
-        guard UpdateCheckPolicy.shouldNotify(
-                  result,
-                  trigger: trigger,
-                  lastNotifiedVersion: lastNotifiedUpdateVersion
-              ),
+        guard shouldNotify,
               case let .updateAvailable(_, release) = result else {
             return
         }
-        lastNotifiedUpdateVersion = release.version
         showUpdateAlert(release: release)
     }
 

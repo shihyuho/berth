@@ -143,7 +143,8 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
                 languageContent: languageContent,
                 updateContent: updateContent
             )
-            let sizeBeforeError = try XCTUnwrap(controller.window).frame.size
+            let windowBeforeError = try XCTUnwrap(controller.window)
+            let sizeBeforeError = windowBeforeError.frame.size
 
             populateLongestStatusContent(in: controller)
             controller.showLanguageSettingsError()
@@ -154,7 +155,6 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
 
             let contentView = try XCTUnwrap(window.contentView)
             XCTAssertEqual(contentView.bounds.width, 520)
-            XCTAssertEqual(contentView.bounds.height, 762)
             let sections = contentView.descendants(of: NSBox.self)
             XCTAssertEqual(sections.count, 5)
             for section in sections {

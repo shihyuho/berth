@@ -1,6 +1,6 @@
 import Foundation
 
-public struct UpdateRelease: Equatable, Sendable {
+public struct UpdateRelease: Codable, Equatable, Sendable {
     public let version: String
     public let detailsURL: URL
 
@@ -19,6 +19,105 @@ public enum UpdateCheckResult: Equatable, Sendable {
 public enum UpdateCheckTrigger: Equatable, Sendable {
     case automatic
     case manual
+}
+
+public struct UpdateCheckState: Codable, Equatable, Sendable {
+    public var lastCheckedAt: Date?
+    public var lastNotifiedVersion: String?
+    public var availableRelease: UpdateRelease?
+
+    public init(
+        lastCheckedAt: Date? = nil,
+        lastNotifiedVersion: String? = nil,
+        availableRelease: UpdateRelease? = nil
+    ) {
+        self.lastCheckedAt = lastCheckedAt
+        self.lastNotifiedVersion = lastNotifiedVersion
+        self.availableRelease = availableRelease
+    }
+}
+
+public protocol UpdateCheckStateStore: AnyObject {
+    func load() -> UpdateCheckState
+    func save(_ state: UpdateCheckState)
+}
+
+public final class UpdateCheckCoordinator {
+    private let store: any UpdateCheckStateStore
+    private let currentVersion: String
+    private var state: UpdateCheckState
+
+    public private(set) var result: UpdateCheckResult?
+
+    public init(store: any UpdateCheckStateStore, currentVersion: String) {
+        self.store = store
+        self.currentVersion = currentVersion
+        var loadedState = store.load()
+        if let release = loadedState.availableRelease,
+           case let .updateAvailable(_, restoredRelease) = UpdateCheckPolicy.evaluate(
+               currentVersion: currentVersion,
+               release: release
+           ) {
+            state = loadedState
+            result = .updateAvailable(
+                currentVersion: currentVersion,
+                release: restoredRelease
+            )
+        } else {
+            let hadStoredRelease = loadedState.availableRelease != nil
+            loadedState.availableRelease = nil
+            state = loadedState
+            result = nil
+            if hadStoredRelease {
+                store.save(loadedState)
+            }
+        }
+    }
+
+    public func beginCheck(
+        trigger: UpdateCheckTrigger,
+        automaticChecksEnabled: Bool,
+        now: Date
+    ) -> Bool {
+        guard UpdateCheckPolicy.shouldCheck(
+            trigger: trigger,
+            automaticChecksEnabled: automaticChecksEnabled,
+            lastCheckedAt: state.lastCheckedAt,
+            now: now
+        ) else {
+            return false
+        }
+        state.lastCheckedAt = now
+        store.save(state)
+        return true
+    }
+
+    @discardableResult
+    public func completeCheck(
+        _ result: UpdateCheckResult,
+        trigger: UpdateCheckTrigger
+    ) -> Bool {
+        self.result = result
+        switch result {
+        case .upToDate:
+            state.availableRelease = nil
+        case let .updateAvailable(_, release):
+            state.availableRelease = release
+        case .failed:
+            break
+        }
+
+        let shouldNotify = UpdateCheckPolicy.shouldNotify(
+            result,
+            trigger: trigger,
+            lastNotifiedVersion: state.lastNotifiedVersion
+        )
+        if shouldNotify, case let .updateAvailable(_, release) = result {
+            state.lastNotifiedVersion = release.version
+        }
+        store.save(state)
+        return shouldNotify
+    }
 }
 
 public enum UpdateCheckPresentation: Equatable, Sendable {

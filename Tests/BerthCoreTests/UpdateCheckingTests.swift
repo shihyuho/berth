@@ -178,4 +178,97 @@ final class UpdateCheckingTests: XCTestCase {
         XCTAssertFalse(UpdateCheckPresentation.current(version: "1.2.0").showsInstructions)
         XCTAssertFalse(UpdateCheckPresentation.failed.showsInstructions)
     }
+
+    func testAvailableUpdateSurvivesReconstructionWithoutRepeatingItsPrompt() {
+        let now = Date(timeIntervalSince1970: 100_000)
+        let store = MemoryUpdateCheckStateStore()
+        let release = UpdateRelease(version: "1.3.0", detailsURL: releaseURL)
+        var coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.2.0")
+
+        XCTAssertTrue(
+            coordinator.beginCheck(
+                trigger: .automatic,
+                automaticChecksEnabled: true,
+                now: now
+            )
+        )
+        XCTAssertTrue(
+            coordinator.completeCheck(
+                .updateAvailable(currentVersion: "1.2.0", release: release),
+                trigger: .automatic
+            )
+        )
+
+        coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.2.0")
+
+        XCTAssertEqual(
+            coordinator.result,
+            .updateAvailable(currentVersion: "1.2.0", release: release)
+        )
+        XCTAssertFalse(
+            coordinator.beginCheck(
+                trigger: .automatic,
+                automaticChecksEnabled: true,
+                now: now.addingTimeInterval(60 * 60)
+            )
+        )
+        XCTAssertTrue(
+            coordinator.beginCheck(
+                trigger: .automatic,
+                automaticChecksEnabled: true,
+                now: now.addingTimeInterval(24 * 60 * 60)
+            )
+        )
+        XCTAssertFalse(
+            coordinator.completeCheck(
+                .updateAvailable(currentVersion: "1.2.0", release: release),
+                trigger: .automatic
+            )
+        )
+    }
+
+    func testCurrentResultClearsAStoredAvailableRelease() {
+        let store = MemoryUpdateCheckStateStore(
+            state: UpdateCheckState(
+                availableRelease: UpdateRelease(version: "1.3.0", detailsURL: releaseURL)
+            )
+        )
+        let coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.2.0")
+
+        coordinator.completeCheck(.upToDate(currentVersion: "1.3.0"), trigger: .manual)
+
+        XCTAssertNil(store.state.availableRelease)
+        XCTAssertNil(
+            UpdateCheckCoordinator(store: store, currentVersion: "1.3.0").result
+        )
+    }
+
+    func testReconstructionClearsAReleaseThatIsNoLongerNewerThanTheApp() {
+        let store = MemoryUpdateCheckStateStore(
+            state: UpdateCheckState(
+                availableRelease: UpdateRelease(version: "1.3.0", detailsURL: releaseURL)
+            )
+        )
+
+        let coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.3.0")
+
+        XCTAssertNil(coordinator.result)
+        XCTAssertNil(store.state.availableRelease)
+    }
+}
+
+private final class MemoryUpdateCheckStateStore: UpdateCheckStateStore {
+    var state: UpdateCheckState
+
+    init(state: UpdateCheckState = UpdateCheckState()) {
+        self.state = state
+    }
+
+    func load() -> UpdateCheckState {
+        state
+    }
+
+    func save(_ state: UpdateCheckState) {
+        self.state = state
+    }
 }

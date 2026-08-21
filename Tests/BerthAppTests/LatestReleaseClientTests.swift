@@ -12,6 +12,7 @@ final class LatestReleaseClientTests: XCTestCase {
                 request.url,
                 URL(string: "https://api.github.com/repos/shihyuho/berth/releases/latest")
             )
+            XCTAssertEqual(request.cachePolicy, .reloadIgnoringLocalCacheData)
             let data = Data(
                 """
                 {
