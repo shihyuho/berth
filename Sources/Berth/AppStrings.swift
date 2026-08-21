@@ -67,6 +67,9 @@ enum AppStrings {
         case updateAlertTitle = "updates.alert.title"
         case updateAlertMessage = "updates.alert.message"
         case updateAlertLater = "updates.alert.later"
+        case upToDateAlertTitle = "updates.upToDateAlert.title"
+        case upToDateAlertMessage = "updates.upToDateAlert.message"
+        case upToDateAlertDismiss = "updates.upToDateAlert.dismiss"
     }
 
     static var pinDockTo: String { localized(.menuPinDockTo) }
@@ -136,6 +139,8 @@ enum AppStrings {
     static var settingsUpdatesFailed: String { localized(.settingsUpdatesFailed) }
     static var updateAlertTitle: String { localized(.updateAlertTitle) }
     static var updateAlertLater: String { localized(.updateAlertLater) }
+    static var upToDateAlertTitle: String { localized(.upToDateAlertTitle) }
+    static var upToDateAlertDismiss: String { localized(.upToDateAlertDismiss) }
 
     static func pinnedStatus(displayName: String) -> String {
         formatted(.statusPinned, arguments: [displayName])
@@ -167,6 +172,10 @@ enum AppStrings {
 
     static func updateAlertMessage(version: String) -> String {
         formatted(.updateAlertMessage, arguments: [version])
+    }
+
+    static func upToDateAlertMessage(version: String) -> String {
+        formatted(.upToDateAlertMessage, arguments: [version])
     }
 
     private static func formatted(_ key: Key, arguments: [CVarArg]) -> String {

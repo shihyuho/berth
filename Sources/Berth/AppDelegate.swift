@@ -474,14 +474,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         trigger: UpdateCheckTrigger
     ) {
         isCheckingForUpdates = false
-        let shouldNotify = updateCheckCoordinator.completeCheck(result, trigger: trigger)
+        let shouldNotifyAboutAvailableUpdate = updateCheckCoordinator.completeCheck(
+            result,
+            trigger: trigger
+        )
+        let alert = UpdateCheckAlert.resolve(
+            result: result,
+            trigger: trigger,
+            shouldNotifyAboutAvailableUpdate: shouldNotifyAboutAvailableUpdate
+        )
         refreshSettingsWindow()
 
-        guard shouldNotify,
-              case let .updateAvailable(_, release) = result else {
-            return
+        switch alert {
+        case .none:
+            break
+        case let .upToDate(version):
+            showUpToDateAlert(version: version)
+        case let .updateAvailable(release):
+            showUpdateAlert(release: release)
         }
-        showUpdateAlert(release: release)
+    }
+
+    private func showUpToDateAlert(version: String) {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = AppStrings.upToDateAlertTitle
+        alert.informativeText = AppStrings.upToDateAlertMessage(version: version)
+        alert.addButton(withTitle: AppStrings.upToDateAlertDismiss)
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
     }
 
     private func showUpdateAlert(release: UpdateRelease) {
