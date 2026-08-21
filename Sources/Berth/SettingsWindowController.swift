@@ -90,13 +90,15 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
     func updateUpdates(
         automaticChecksEnabled: Bool,
         isChecking: Bool,
-        result: UpdateCheckResult?
+        result: UpdateCheckResult?,
+        knownAvailableRelease: UpdateRelease? = nil
     ) {
         automaticUpdateChecksToggle.state = automaticChecksEnabled ? .on : .off
         checkForUpdatesButton.isEnabled = !isChecking
         let presentation = UpdateCheckPresentation.resolve(
             isChecking: isChecking,
-            result: result
+            result: result,
+            knownAvailableRelease: knownAvailableRelease
         )
         viewUpdateInstructionsButton.isHidden = !presentation.showsInstructions
 
@@ -109,8 +111,15 @@ final class SettingsWindowController: NSWindowController, NSWindowDelegate {
             updateStatus.stringValue = updateContent.current(version)
         case let .available(version):
             updateStatus.stringValue = updateContent.available(version)
-        case .failed:
-            updateStatus.stringValue = updateContent.failed
+        case let .failed(knownAvailableVersion):
+            if let knownAvailableVersion {
+                updateStatus.stringValue = [
+                    updateContent.failed,
+                    updateContent.available(knownAvailableVersion),
+                ].joined(separator: " ")
+            } else {
+                updateStatus.stringValue = updateContent.failed
+            }
         }
         updateStatus.textColor = .secondaryLabelColor
     }

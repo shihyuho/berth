@@ -47,6 +47,37 @@ final class SettingsWindowControllerLayoutTests: XCTestCase {
         XCTAssertTrue(status.stringValue.contains("1.3.0"))
     }
 
+    func testFailedRecheckStillShowsKnownVersionAndInstructions() throws {
+        let controller = makeController()
+        let release = UpdateRelease(
+            version: "1.3.0",
+            detailsURL: URL(string: "https://github.com/shihyuho/berth/releases/tag/1.3.0")!
+        )
+
+        controller.updateUpdates(
+            automaticChecksEnabled: true,
+            isChecking: false,
+            result: .failed,
+            knownAvailableRelease: release
+        )
+
+        let contentView = try XCTUnwrap(controller.window?.contentView)
+        let viewButton = try XCTUnwrap(
+            contentView.descendants(of: NSButton.self).first {
+                $0.identifier?.rawValue == "settings.updates.view"
+            }
+        )
+        let status = try XCTUnwrap(
+            contentView.descendants(of: NSTextField.self).first {
+                $0.identifier?.rawValue == "settings.updates.status"
+            }
+        )
+
+        XCTAssertFalse(viewButton.isHidden)
+        XCTAssertTrue(status.stringValue.contains(UpdateSettingsContent.english.failed))
+        XCTAssertTrue(status.stringValue.contains("1.3.0"))
+    }
+
     func testWrappingLabelsStayWithinTheirSectionStacks() throws {
         let controller = makeController()
         let contentView = try XCTUnwrap(controller.window?.contentView)

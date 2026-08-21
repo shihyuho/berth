@@ -214,15 +214,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         let updatePresentation = UpdateCheckPresentation.resolve(
             isChecking: isCheckingForUpdates,
-            result: updateCheckCoordinator.result
+            result: updateCheckCoordinator.lastAttemptResult,
+            knownAvailableRelease: updateCheckCoordinator.knownAvailableRelease
         )
         switch updatePresentation {
         case let .current(version):
             menu.addItem(disabledItem(AppStrings.settingsUpdatesCurrent(version: version)))
         case let .available(version):
             menu.addItem(disabledItem(AppStrings.updateAvailable(version: version)))
-        case .failed:
+        case let .failed(knownAvailableVersion):
             menu.addItem(disabledItem(AppStrings.settingsUpdatesFailed))
+            if let knownAvailableVersion {
+                menu.addItem(disabledItem(AppStrings.updateAvailable(version: knownAvailableVersion)))
+            }
         case .idle, .checking:
             break
         }
@@ -417,7 +421,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         controller.updateUpdates(
             automaticChecksEnabled: automaticUpdateChecksEnabled,
             isChecking: isCheckingForUpdates,
-            result: updateCheckCoordinator.result
+            result: updateCheckCoordinator.lastAttemptResult,
+            knownAvailableRelease: updateCheckCoordinator.knownAvailableRelease
         )
     }
 

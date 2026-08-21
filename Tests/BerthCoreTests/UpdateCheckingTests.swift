@@ -114,14 +114,14 @@ final class UpdateCheckingTests: XCTestCase {
             UpdateCheckPolicy.shouldNotify(
                 result,
                 trigger: .automatic,
-                lastNotifiedVersion: nil
+                notifiedVersions: []
             )
         )
         XCTAssertFalse(
             UpdateCheckPolicy.shouldNotify(
                 result,
                 trigger: .automatic,
-                lastNotifiedVersion: "1.3.0"
+                notifiedVersions: ["1.3.0"]
             )
         )
     }
@@ -136,7 +136,7 @@ final class UpdateCheckingTests: XCTestCase {
             UpdateCheckPolicy.shouldNotify(
                 result,
                 trigger: .manual,
-                lastNotifiedVersion: nil
+                notifiedVersions: []
             )
         )
     }
@@ -169,14 +169,19 @@ final class UpdateCheckingTests: XCTestCase {
         )
         XCTAssertEqual(
             UpdateCheckPresentation.resolve(isChecking: false, result: .failed),
-            .failed
+            .failed(knownAvailableVersion: nil)
         )
     }
 
     func testOnlyAvailablePresentationOffersUpdateInstructions() {
         XCTAssertTrue(UpdateCheckPresentation.available(version: "1.3.0").showsInstructions)
+        XCTAssertTrue(
+            UpdateCheckPresentation.failed(knownAvailableVersion: "1.3.0").showsInstructions
+        )
         XCTAssertFalse(UpdateCheckPresentation.current(version: "1.2.0").showsInstructions)
-        XCTAssertFalse(UpdateCheckPresentation.failed.showsInstructions)
+        XCTAssertFalse(
+            UpdateCheckPresentation.failed(knownAvailableVersion: nil).showsInstructions
+        )
     }
 
     func testAvailableUpdateSurvivesReconstructionWithoutRepeatingItsPrompt() {
@@ -202,9 +207,10 @@ final class UpdateCheckingTests: XCTestCase {
         coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.2.0")
 
         XCTAssertEqual(
-            coordinator.result,
-            .updateAvailable(currentVersion: "1.2.0", release: release)
+            coordinator.knownAvailableRelease,
+            release
         )
+        XCTAssertNil(coordinator.lastAttemptResult)
         XCTAssertFalse(
             coordinator.beginCheck(
                 trigger: .automatic,
@@ -239,7 +245,8 @@ final class UpdateCheckingTests: XCTestCase {
 
         XCTAssertNil(store.state.availableRelease)
         XCTAssertNil(
-            UpdateCheckCoordinator(store: store, currentVersion: "1.3.0").result
+            UpdateCheckCoordinator(store: store, currentVersion: "1.3.0")
+                .knownAvailableRelease
         )
     }
 
@@ -252,8 +259,69 @@ final class UpdateCheckingTests: XCTestCase {
 
         let coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.3.0")
 
-        XCTAssertNil(coordinator.result)
+        XCTAssertNil(coordinator.knownAvailableRelease)
         XCTAssertNil(store.state.availableRelease)
+    }
+
+    func testFailedRecheckKeepsKnownUpdateAndInstructionsVisible() {
+        let store = MemoryUpdateCheckStateStore()
+        let release = UpdateRelease(version: "1.3.0", detailsURL: releaseURL)
+        let coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.2.0")
+        coordinator.completeCheck(
+            .updateAvailable(currentVersion: "1.2.0", release: release),
+            trigger: .automatic
+        )
+
+        coordinator.completeCheck(.failed, trigger: .manual)
+
+        XCTAssertEqual(coordinator.lastAttemptResult, .failed)
+        XCTAssertEqual(coordinator.knownAvailableRelease, release)
+        let presentation = UpdateCheckPresentation.resolve(
+            isChecking: false,
+            result: coordinator.lastAttemptResult,
+            knownAvailableRelease: coordinator.knownAvailableRelease
+        )
+        XCTAssertEqual(
+            presentation,
+            .failed(knownAvailableVersion: "1.3.0")
+        )
+        XCTAssertTrue(presentation.showsInstructions)
+    }
+
+    func testNonconsecutiveReleaseVersionNeverRepeatsItsPrompt() {
+        let store = MemoryUpdateCheckStateStore()
+        var coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.2.0")
+        let releaseA = UpdateRelease(version: "1.3.0", detailsURL: releaseURL)
+        let releaseB = UpdateRelease(version: "1.4.0", detailsURL: releaseURL)
+
+        XCTAssertTrue(
+            coordinator.completeCheck(
+                .updateAvailable(currentVersion: "1.2.0", release: releaseA),
+                trigger: .automatic
+            )
+        )
+        XCTAssertTrue(
+            coordinator.completeCheck(
+                .updateAvailable(currentVersion: "1.2.0", release: releaseB),
+                trigger: .automatic
+            )
+        )
+        coordinator = UpdateCheckCoordinator(store: store, currentVersion: "1.2.0")
+        XCTAssertFalse(
+            coordinator.completeCheck(
+                .updateAvailable(currentVersion: "1.2.0", release: releaseA),
+                trigger: .automatic
+            )
+        )
+        XCTAssertEqual(store.state.notifiedVersions, ["1.3.0", "1.4.0"])
+    }
+
+    func testLegacyLastNotifiedVersionMigratesIntoNotifiedVersions() throws {
+        let data = Data(#"{"lastNotifiedVersion":"1.3.0"}"#.utf8)
+
+        let state = try JSONDecoder().decode(UpdateCheckState.self, from: data)
+
+        XCTAssertEqual(state.notifiedVersions, ["1.3.0"])
     }
 }
 

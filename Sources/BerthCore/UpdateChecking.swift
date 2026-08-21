@@ -23,17 +23,53 @@ public enum UpdateCheckTrigger: Equatable, Sendable {
 
 public struct UpdateCheckState: Codable, Equatable, Sendable {
     public var lastCheckedAt: Date?
-    public var lastNotifiedVersion: String?
+    public var notifiedVersions: Set<String>
     public var availableRelease: UpdateRelease?
 
     public init(
         lastCheckedAt: Date? = nil,
-        lastNotifiedVersion: String? = nil,
+        notifiedVersions: Set<String> = [],
         availableRelease: UpdateRelease? = nil
     ) {
         self.lastCheckedAt = lastCheckedAt
-        self.lastNotifiedVersion = lastNotifiedVersion
+        self.notifiedVersions = notifiedVersions
         self.availableRelease = availableRelease
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case lastCheckedAt
+        case notifiedVersions
+        case availableRelease
+        case lastNotifiedVersion
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        lastCheckedAt = try container.decodeIfPresent(Date.self, forKey: .lastCheckedAt)
+        availableRelease = try container.decodeIfPresent(
+            UpdateRelease.self,
+            forKey: .availableRelease
+        )
+        if let versions = try container.decodeIfPresent(
+            Set<String>.self,
+            forKey: .notifiedVersions
+        ) {
+            notifiedVersions = versions
+        } else if let legacyVersion = try container.decodeIfPresent(
+            String.self,
+            forKey: .lastNotifiedVersion
+        ) {
+            notifiedVersions = [legacyVersion]
+        } else {
+            notifiedVersions = []
+        }
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(lastCheckedAt, forKey: .lastCheckedAt)
+        try container.encode(notifiedVersions, forKey: .notifiedVersions)
+        try container.encodeIfPresent(availableRelease, forKey: .availableRelease)
     }
 }
 
@@ -44,30 +80,29 @@ public protocol UpdateCheckStateStore: AnyObject {
 
 public final class UpdateCheckCoordinator {
     private let store: any UpdateCheckStateStore
-    private let currentVersion: String
     private var state: UpdateCheckState
 
-    public private(set) var result: UpdateCheckResult?
+    public private(set) var lastAttemptResult: UpdateCheckResult?
+
+    public var knownAvailableRelease: UpdateRelease? {
+        state.availableRelease
+    }
 
     public init(store: any UpdateCheckStateStore, currentVersion: String) {
         self.store = store
-        self.currentVersion = currentVersion
         var loadedState = store.load()
         if let release = loadedState.availableRelease,
-           case let .updateAvailable(_, restoredRelease) = UpdateCheckPolicy.evaluate(
+           case .updateAvailable = UpdateCheckPolicy.evaluate(
                currentVersion: currentVersion,
                release: release
            ) {
             state = loadedState
-            result = .updateAvailable(
-                currentVersion: currentVersion,
-                release: restoredRelease
-            )
+            lastAttemptResult = nil
         } else {
             let hadStoredRelease = loadedState.availableRelease != nil
             loadedState.availableRelease = nil
             state = loadedState
-            result = nil
+            lastAttemptResult = nil
             if hadStoredRelease {
                 store.save(loadedState)
             }
@@ -97,7 +132,7 @@ public final class UpdateCheckCoordinator {
         _ result: UpdateCheckResult,
         trigger: UpdateCheckTrigger
     ) -> Bool {
-        self.result = result
+        lastAttemptResult = result
         switch result {
         case .upToDate:
             state.availableRelease = nil
@@ -110,10 +145,10 @@ public final class UpdateCheckCoordinator {
         let shouldNotify = UpdateCheckPolicy.shouldNotify(
             result,
             trigger: trigger,
-            lastNotifiedVersion: state.lastNotifiedVersion
+            notifiedVersions: state.notifiedVersions
         )
         if shouldNotify, case let .updateAvailable(_, release) = result {
-            state.lastNotifiedVersion = release.version
+            state.notifiedVersions.insert(release.version)
         }
         store.save(state)
         return shouldNotify
@@ -125,29 +160,37 @@ public enum UpdateCheckPresentation: Equatable, Sendable {
     case checking
     case current(version: String)
     case available(version: String)
-    case failed
+    case failed(knownAvailableVersion: String?)
 
     public var showsInstructions: Bool {
-        if case .available = self {
+        switch self {
+        case .available:
             return true
+        case let .failed(knownAvailableVersion):
+            return knownAvailableVersion != nil
+        case .idle, .checking, .current:
+            return false
         }
-        return false
     }
 
     public static func resolve(
         isChecking: Bool,
-        result: UpdateCheckResult?
+        result: UpdateCheckResult?,
+        knownAvailableRelease: UpdateRelease? = nil
     ) -> Self {
         guard !isChecking else { return .checking }
         switch result {
         case .none:
+            if let knownAvailableRelease {
+                return .available(version: knownAvailableRelease.version)
+            }
             return .idle
         case let .upToDate(currentVersion):
             return .current(version: currentVersion)
         case let .updateAvailable(_, release):
             return .available(version: release.version)
         case .failed:
-            return .failed
+            return .failed(knownAvailableVersion: knownAvailableRelease?.version)
         }
     }
 }
@@ -156,13 +199,13 @@ public enum UpdateCheckPolicy {
     public static func shouldNotify(
         _ result: UpdateCheckResult,
         trigger: UpdateCheckTrigger,
-        lastNotifiedVersion: String?
+        notifiedVersions: Set<String>
     ) -> Bool {
         guard trigger == .automatic,
               case let .updateAvailable(_, release) = result else {
             return false
         }
-        return release.version != lastNotifiedVersion
+        return !notifiedVersions.contains(release.version)
     }
 
     public static func shouldCheck(
