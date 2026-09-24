@@ -62,6 +62,10 @@ Berth 需要 Apple Silicon 與 macOS 13 以上版本。
 | [開發](docs/zh-TW/development.md) | 從原始碼建置、版本與發布封裝 |
 | [測試](docs/zh-TW/testing.md) | 自動驗證、coverage 政策與發布前 smoke test |
 
+## 支持 Berth
+
+如果 Berth 對你有幫助，可以透過 [Buy Me a Coffee](https://buymeacoffee.com/methodho) 支持這個專案的維護。
+
 ## License
 
 [MIT](LICENSE) © Shihyu

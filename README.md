@@ -62,6 +62,10 @@ Berth requires macOS 13 or later on Apple Silicon.
 | [Development](docs/development.md) | Building from source, versions, and release packaging |
 | [Testing](docs/testing.md) | Automated validation, coverage policy, and release smoke test |
 
+## Support
+
+If Berth helps you, you can support its maintenance through [Buy Me a Coffee](https://buymeacoffee.com/methodho).
+
 ## License
 
 [MIT](LICENSE) © Shihyu
