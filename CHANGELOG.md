@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/shihyuho/berth/compare/1.2.1...1.2.2) (2026-09-24)
+
+
+### Miscellaneous Chores
+
+* add Buy Me a Coffee support links ([#31](https://github.com/shihyuho/berth/issues/31)) ([125c142](https://github.com/shihyuho/berth/commit/125c1420944ebbc457f0a068bb34cdab87234976))
+
 ## [1.2.1](https://github.com/shihyuho/berth/compare/1.2.0...1.2.1) (2026-08-21)
 
 
